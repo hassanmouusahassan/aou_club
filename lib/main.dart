@@ -23,6 +23,7 @@
 // }
 
 import 'package:aou_club/constants/global_var.dart';
+import 'package:aou_club/screens/club_home_page.dart';
 import 'package:aou_club/screens/login_page.dart';
 import 'package:aou_club/widgets/router.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +54,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       onGenerateRoute: ((settings) => generateRoute(settings)),
-      home: const LoginPage(),
+      home:  ClubsPage(),
     );
   }
 }
