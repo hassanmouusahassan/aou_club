@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class LoginPage extends StatelessWidget {
-    static const String routeName = '/login';
+  static const String routeName = '/login';
   const LoginPage({super.key});
 
 
@@ -21,8 +21,6 @@ class LoginPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios,
           size: 20,
           color: Colors.black,),
-
-
         ), systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       body: SizedBox(
@@ -68,9 +66,6 @@ class LoginPage extends StatelessWidget {
                             right: BorderSide(color: Colors.black),
 
                           )
-
-
-
                         ),
                       child: MaterialButton(
                         minWidth: double.infinity,
@@ -87,7 +82,7 @@ class LoginPage extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           fontSize: 18,
                           color: Colors.white,
-
+                          
                         ),
                         ),
 

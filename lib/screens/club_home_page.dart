@@ -1,3 +1,4 @@
+import 'package:aou_club/screens/chat_page.dart';
 import 'package:aou_club/screens/clubs_info_pages.dart';
 import 'package:aou_club/screens/news_announcement_page.dart';
 import 'package:aou_club/screens/settings_page.dart';
@@ -14,7 +15,7 @@ class Club {
 }
 
 List<Club> clubs = [
-  Club(name: "Sports Club", admin: "John Doe", imageUrl: "assets/club-icon-4.jpg"),
+Club(name: "Sports Club", admin: "John Doe", imageUrl: "assets/club-icon-4.jpg"),
 Club(name: "Dance Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
 Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
 Club(name: "Omar Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
@@ -60,9 +61,9 @@ class _ClubsPageState extends State<ClubsPage> {
         },
         children: [
           _buildClubsList(),
-          SettingsPage(), // Replace with your Settings Widget
           NewsPage(), // Replace with your News Widget
-          ClubInfo(),
+          ChatPage(),
+          SettingsPage(),
           // Replace with your Chat Widget
         ],
       ),
@@ -73,16 +74,16 @@ class _ClubsPageState extends State<ClubsPage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings,color: Colors.black),
-            label: 'Settings',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.local_fire_department,color: Colors.black),
             label: 'News',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat,color: Colors.black),
             label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings,color: Colors.black),
+            label: 'Settings',
           ),
         ],
         currentIndex: _selectedIndex,
