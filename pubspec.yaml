@@ -66,6 +66,13 @@ flutter:
   assets:
     - assets/club-icon-4.jpg
     - assets/omar.png
+    - assets/sport.jpeg
+    - assets/dancing.jpg
+    - assets/music.jpeg
+    - assets/computer.jpeg
+    - assets/ai.jpeg
+    - assets/hassan.jpeg
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

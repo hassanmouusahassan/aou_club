@@ -14,14 +14,14 @@ class Club {
 }
 
 List<Club> clubs = [
-  Club(name: "Sports Club", admin: "John Doe", imageUrl: "assets/club-icon-4.jpg"),
-  Club(name: "Dance Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-  Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-  Club(name: "Omar Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-  Club(name: "Hassan Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-  Club(name: "Computer Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-  Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-  Club(name: "AI Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+  Club(name: "Sports Club", admin: "John Doe", imageUrl: "assets/sport.jpeg"),
+  Club(name: "Dance Club", admin: "Jane Doe", imageUrl: "assets/dancing.jpg"),
+  Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/music.jpeg"),
+  Club(name: "Omar Club", admin: "Jane Doe", imageUrl: "assets/omar.png"),
+  Club(name: "Hassan Club", admin: "Jane Doe", imageUrl: "assets/hassan.jpeg"),
+  Club(name: "Computer Club", admin: "Jane Doe", imageUrl: "assets/computer.jpeg"),
+  Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/music.jpeg"),
+  Club(name: "AI Club", admin: "Jane Doe", imageUrl: "assets/ai.jpeg"),
 ];
 
 class ClubsPage extends StatefulWidget {
