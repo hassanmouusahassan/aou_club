@@ -3,7 +3,6 @@ import 'package:aou_club/screens/clubs_info_pages.dart';
 import 'package:aou_club/screens/news_announcement_page.dart';
 import 'package:aou_club/screens/settings_page.dart';
 import 'package:flutter/material.dart';
-import 'package:aou_club/screens/login_page.dart';
 
 class Club {
   final String name;
