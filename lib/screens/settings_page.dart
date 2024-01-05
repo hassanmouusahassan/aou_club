@@ -1,5 +1,7 @@
+import 'package:aou_club/constants/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:aou_club/screens/profile_page.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -60,7 +62,9 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   navigateToProfile() {
-    Navigator.of(context).push(_createRoute()).then((_) => loadProfile()); // Reload profile on return
+    Navigator.of(context)
+        .push(_createRoute())
+        .then((_) => loadProfile()); // Reload profile on return
   }
 
   Route _createRoute() {
@@ -75,7 +79,8 @@ class _SettingsPageState extends State<SettingsPage> {
         var end = Offset.zero;
         var curve = Curves.ease;
 
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
@@ -94,7 +99,8 @@ class _SettingsPageState extends State<SettingsPage> {
           InkWell(
             onTap: navigateToProfile,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 35.0, horizontal: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 35.0, horizontal: 16.0),
               child: Row(
                 children: <Widget>[
                   CircleAvatar(
@@ -108,7 +114,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: <Widget>[
                         Text(
                           userName,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
@@ -116,7 +122,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         Text(
                           'AOU Student, ID: 220464',
-                          style: TextStyle(color: Colors.grey[400], fontSize: 15),
+                          style:
+                              TextStyle(color: Colors.grey[400], fontSize: 15),
                         ),
                       ],
                     ),
@@ -130,7 +137,8 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ListView(
               children: [
                 SwitchListTile(
-                  title: Text('Notifications', style: TextStyle(color: Colors.black54)),
+                  title: const Text('Notifications',
+                      style: TextStyle(color: Colors.black54)),
                   value: isNotificationsOn,
                   onChanged: (bool value) {
                     setState(() {
@@ -139,15 +147,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   secondary: Icon(Icons.notifications, color: Colors.black),
                 ),
-                SwitchListTile(
-                  title: Text('Change Theme', style: TextStyle(color: Colors.black54)),
-                  value: isthemeOn,
-                  onChanged: (bool value) {
-                    setState(() {
-                      isthemeOn = value;
-                    });
+                FloatingActionButton(
+                  onPressed: () {
+                    Provider.of<ThemeProvider>(context, listen: false)
+                        .toggleTheme();
                   },
-                  secondary: Icon(Icons.light_mode, color: Colors.black),
+                  child: const Icon(Icons.toggle_on),
                 ),
                 // Add more options here as needed
               ],
@@ -162,9 +167,11 @@ class _SettingsPageState extends State<SettingsPage> {
 class UserPreferences {
   static late SharedPreferences _preferences;
 
-  static Future init() async => _preferences = await SharedPreferences.getInstance();
+  static Future init() async =>
+      _preferences = await SharedPreferences.getInstance();
 
-  static Future setName(String name) async => await _preferences.setString('userName', name);
+  static Future setName(String name) async =>
+      await _preferences.setString('userName', name);
 
   static String getName() => _preferences.getString('userName') ?? '';
 }

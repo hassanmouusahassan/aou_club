@@ -14,14 +14,33 @@ class Club {
 }
 
 List<Club> clubs = [
-  Club(name: "Sports Club", admin: "John Doe", imageUrl: "assets/sport.jpeg"),
-  Club(name: "Dance Club", admin: "Jane Doe", imageUrl: "assets/dancing.jpg"),
-  Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/music.jpeg"),
-  Club(name: "Omar Club", admin: "Jane Doe", imageUrl: "assets/omar.png"),
-  Club(name: "Hassan Club", admin: "Jane Doe", imageUrl: "assets/hassan.jpeg"),
-  Club(name: "Computer Club", admin: "Jane Doe", imageUrl: "assets/computer.jpeg"),
-  Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/music.jpeg"),
-  Club(name: "AI Club", admin: "Jane Doe", imageUrl: "assets/ai.jpeg"),
+  Club(
+      name: "Sports Club",
+      admin: "John Doe",
+      imageUrl: "assets/club-icon-4.jpg"),
+  Club(
+      name: "Dance Club",
+      admin: "Jane Doe",
+      imageUrl: "assets/club-icon-4.jpg"),
+  Club(
+      name: "Music Club",
+      admin: "Jane Doe",
+      imageUrl: "assets/club-icon-4.jpg"),
+  Club(
+      name: "Omar Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+  Club(
+      name: "Hassan Club",
+      admin: "Jane Doe",
+      imageUrl: "assets/club-icon-4.jpg"),
+  Club(
+      name: "Computer Club",
+      admin: "Jane Doe",
+      imageUrl: "assets/club-icon-4.jpg"),
+  Club(
+      name: "Music Club",
+      admin: "Jane Doe",
+      imageUrl: "assets/club-icon-4.jpg"),
+  Club(name: "AI Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
 ];
 
 class ClubsPage extends StatefulWidget {
@@ -31,12 +50,12 @@ class ClubsPage extends StatefulWidget {
 
 class _ClubsPageState extends State<ClubsPage> {
   int _selectedIndex = 0;
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
 
   void _onItemTapped(int index) {
     _pageController.animateToPage(
       index,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
   }
@@ -58,7 +77,6 @@ class _ClubsPageState extends State<ClubsPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text(_getTitle(_selectedIndex))),
@@ -73,7 +91,7 @@ class _ClubsPageState extends State<ClubsPage> {
         },
         children: [
           _buildClubsList(),
-          NewsPage(), // Replace with your News Widget
+          const NewsPage(), // Replace with your News Widget
           ChatPage(), // Replace with your Chat Widget
           SettingsPage(), // Replace with your Settings Widget
         ],
@@ -81,19 +99,21 @@ class _ClubsPageState extends State<ClubsPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.black),
+            icon: Icon(Icons.home, color: Colors.blue), // Set color for Home
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_fire_department, color: Colors.black),
+            icon: Icon(Icons.local_fire_department,
+                color: Colors.green), // Set color for News
             label: 'News',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat, color: Colors.black),
+            icon: Icon(Icons.chat, color: Colors.orange), // Set color for Chat
             label: 'Chat',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings, color: Colors.black),
+            icon: Icon(Icons.settings,
+                color: Colors.purple), // Set color for Settings
             label: 'Settings',
           ),
         ],
@@ -110,7 +130,8 @@ class _ClubsPageState extends State<ClubsPage> {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ClubInfo()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const ClubInfo()));
             print('Tapped on ${clubs[index].name}');
           },
           child: ClubCard(club: clubs[index]),
@@ -129,7 +150,7 @@ class ClubCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 5.0,
-      margin: EdgeInsets.all(10.0),
+      margin: const EdgeInsets.all(10.0),
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       child: Container(
@@ -138,18 +159,19 @@ class ClubCard extends StatelessWidget {
           image: DecorationImage(
             fit: BoxFit.cover,
             image: AssetImage(club.imageUrl),
-            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.darken),
+            colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.3), BlendMode.darken),
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 club.name,
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                   fontSize: 24.0,
@@ -157,7 +179,7 @@ class ClubCard extends StatelessWidget {
               ),
               Text(
                 'Admin: ${club.admin}',
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             ],
           ),
