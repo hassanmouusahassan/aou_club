@@ -58,6 +58,7 @@ class _ClubsPageState extends State<ClubsPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text(_getTitle(_selectedIndex))),

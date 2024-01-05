@@ -28,9 +28,21 @@ import 'package:aou_club/screens/login_page.dart';
 import 'package:aou_club/widgets/router.dart';
 import 'package:flutter/material.dart';
 
+// user_data.dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'models/user_data.dart';
+
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserData(),
+      child: MyApp(),
+    ),
+  );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

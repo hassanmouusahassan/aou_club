@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ClubInfo extends StatelessWidget {
+
   const ClubInfo({super.key});
 
   @override
