@@ -5,7 +5,6 @@ import 'package:aou_club/screens/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aou_club/screens/login_page.dart';
 
-
 class Club {
   final String name;
   final String admin;
@@ -15,18 +14,15 @@ class Club {
 }
 
 List<Club> clubs = [
-Club(name: "Sports Club", admin: "John Doe", imageUrl: "assets/club-icon-4.jpg"),
-Club(name: "Dance Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-Club(name: "Omar Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-Club(name: "Hassan Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-Club(name: "Computer Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-Club(name: "AI Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
-
-
+  Club(name: "Sports Club", admin: "John Doe", imageUrl: "assets/club-icon-4.jpg"),
+  Club(name: "Dance Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+  Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+  Club(name: "Omar Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+  Club(name: "Hassan Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+  Club(name: "Computer Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+  Club(name: "Music Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+  Club(name: "AI Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
 ];
-// Add more clubs as needed
 
 class ClubsPage extends StatefulWidget {
   @override
@@ -45,11 +41,26 @@ class _ClubsPageState extends State<ClubsPage> {
     );
   }
 
+  String _getTitle(int index) {
+    switch (index) {
+      case 0:
+        return 'AOU CLUBS';
+      case 1:
+        return 'News';
+      case 2:
+        return 'Chat';
+      case 3:
+        return 'Settings';
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('AOU CLUBS')),
+        title: Center(child: Text(_getTitle(_selectedIndex))),
         backgroundColor: Colors.deepPurple,
       ),
       body: PageView(
@@ -62,27 +73,26 @@ class _ClubsPageState extends State<ClubsPage> {
         children: [
           _buildClubsList(),
           NewsPage(), // Replace with your News Widget
-          ChatPage(),
-          SettingsPage(),
-          // Replace with your Chat Widget
+          ChatPage(), // Replace with your Chat Widget
+          SettingsPage(), // Replace with your Settings Widget
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home,color: Colors.black),
+            icon: Icon(Icons.home, color: Colors.black),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_fire_department,color: Colors.black),
+            icon: Icon(Icons.local_fire_department, color: Colors.black),
             label: 'News',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat,color: Colors.black),
+            icon: Icon(Icons.chat, color: Colors.black),
             label: 'Chat',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings,color: Colors.black),
+            icon: Icon(Icons.settings, color: Colors.black),
             label: 'Settings',
           ),
         ],
@@ -109,7 +119,6 @@ class _ClubsPageState extends State<ClubsPage> {
   }
 }
 
-
 class ClubCard extends StatelessWidget {
   final Club club;
 
@@ -120,15 +129,15 @@ class ClubCard extends StatelessWidget {
     return Card(
       elevation: 5.0,
       margin: EdgeInsets.all(10.0),
-      clipBehavior: Clip.antiAlias, // Ensures the image is clipped to the card's border radius
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       child: Container(
-        height: 200, // Adjust the height as needed
+        height: 200,
         decoration: BoxDecoration(
           image: DecorationImage(
             fit: BoxFit.cover,
-            image: AssetImage(club.imageUrl), // Ensures the image covers the card
-            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.darken), // Optional: darkens the image
+            image: AssetImage(club.imageUrl),
+            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.darken),
           ),
         ),
         child: Padding(
@@ -149,9 +158,7 @@ class ClubCard extends StatelessWidget {
                 'Admin: ${club.admin}',
                 style: TextStyle(color: Colors.white),
               ),
-
             ],
-
           ),
         ),
       ),
