@@ -17,30 +17,32 @@ List<Club> clubs = [
   Club(
       name: "Sports Club",
       admin: "John Doe",
-      imageUrl: "assets/club-icon-4.jpg"),
+      imageUrl: "assets/sport.jpeg",),
   Club(
       name: "Dance Club",
       admin: "Jane Doe",
-      imageUrl: "assets/club-icon-4.jpg"),
+      imageUrl: "assets/dancing.jpg",),
   Club(
       name: "Music Club",
       admin: "Jane Doe",
-      imageUrl: "assets/club-icon-4.jpg"),
+      imageUrl: "assets/music.jpeg",),
   Club(
-      name: "Omar Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+      name: "Omar Club",
+      admin: "Jane Doe",
+      imageUrl: "assets/omar.png",),
   Club(
       name: "Hassan Club",
       admin: "Jane Doe",
-      imageUrl: "assets/club-icon-4.jpg"),
+      imageUrl: "assets/hassan.jpeg"),
   Club(
       name: "Computer Club",
       admin: "Jane Doe",
-      imageUrl: "assets/club-icon-4.jpg"),
+      imageUrl: "assets/computer.jpeg",),
   Club(
       name: "Music Club",
       admin: "Jane Doe",
-      imageUrl: "assets/club-icon-4.jpg"),
-  Club(name: "AI Club", admin: "Jane Doe", imageUrl: "assets/club-icon-4.jpg"),
+      imageUrl: "assets/music.jpeg",),
+  Club(name: "AI Club", admin: "Jane Doe", imageUrl: "assets/ai.jpeg"),
 ];
 
 class ClubsPage extends StatefulWidget {
@@ -78,50 +80,51 @@ class _ClubsPageState extends State<ClubsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Center(child: Text(_getTitle(_selectedIndex))),
-        backgroundColor: Colors.deepPurple,
-      ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        children: [
-          _buildClubsList(),
-          const NewsPage(), // Replace with your News Widget
-          ChatPage(), // Replace with your Chat Widget
-          SettingsPage(), // Replace with your Settings Widget
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.blue), // Set color for Home
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_fire_department,
-                color: Colors.green), // Set color for News
-            label: 'News',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat, color: Colors.orange), // Set color for Chat
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings,
-                color: Colors.purple), // Set color for Settings
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.deepPurple,
-        onTap: _onItemTapped,
-      ),
-    );
+        appBar: AppBar(
+          title: Center(child: Text(_getTitle(_selectedIndex),style: TextStyle(fontWeight: FontWeight.bold),)),
+          backgroundColor: Colors.black26,
+        ),
+        body: PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          children: [
+            _buildClubsList(),
+             NewsPage(), // Replace with your News Widget
+            ChatPage(), // Replace with your Chat Widget
+            SettingsPage(), // Replace with your Settings Widget
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home, color: Colors.blue), // Set color for Home
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.local_fire_department,
+                  color: Colors.green), // Set color for News
+              label: 'News',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat, color: Colors.orange), // Set color for Chat
+              label: 'Chat',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings,
+                  color: Colors.purple), // Set color for Settings
+              label: 'Settings',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.deepPurple,
+          onTap: _onItemTapped,
+        ),
+      );
+
   }
 
   Widget _buildClubsList() {

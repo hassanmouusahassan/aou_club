@@ -32,6 +32,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool isNotificationsOn = true;
+
   bool isthemeOn = true;
   String userName = 'Cov Omar';
   String userImage = 'assets/omar.png'; // Ensure this path is valid
@@ -51,6 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
       });
     }
   }
+
 
   void updateProfile(String newName, String newImage) async {
     setState(() {
@@ -115,7 +117,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         Text(
                           userName,
                           style: const TextStyle(
-                            color: Colors.black,
+                            color: Colors.teal,
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
                           ),
@@ -138,22 +140,28 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 SwitchListTile(
                   title: const Text('Notifications',
-                      style: TextStyle(color: Colors.black54)),
+                      style: TextStyle(color: Colors.grey)),
                   value: isNotificationsOn,
                   onChanged: (bool value) {
                     setState(() {
                       isNotificationsOn = value;
                     });
                   },
-                  secondary: Icon(Icons.notifications, color: Colors.black),
-                ),
-                FloatingActionButton(
-                  onPressed: () {
-                    Provider.of<ThemeProvider>(context, listen: false)
-                        .toggleTheme();
+                  secondary: Icon(isNotificationsOn ? Icons.notifications : Icons.notifications_off_rounded, color: Colors.green),
+                ), SwitchListTile(
+                  title: const Text('theme mode',
+                      style: TextStyle(color: Colors.grey)),
+                  value: isthemeOn,
+                  onChanged: (bool value) {
+                    setState(() {
+                      Provider.of<ThemeProvider>(context, listen: false)
+                          .toggleTheme();
+                      isthemeOn = value;
+                    });
                   },
-                  child: const Icon(Icons.toggle_on),
+                  secondary: Icon(isthemeOn ? Icons.light_mode : Icons.dark_mode, color: Colors.green),
                 ),
+
                 // Add more options here as needed
               ],
             ),
