@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
         brightness: Brightness.dark,
+
         hintColor: Colors.amber,
       ),
       home: SettingsPage(),
@@ -33,7 +34,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool isNotificationsOn = true;
 
-  bool isthemeOn = true;
+  bool isthemeOn = false;
   String userName = 'Cov Omar';
   String userImage = 'assets/omar.png'; // Ensure this path is valid
 

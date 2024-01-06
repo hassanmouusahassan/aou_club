@@ -33,6 +33,7 @@ dependencies:
   provider: ^5.0.0
   image_picker: ^1.0.6
   shared_preferences: ^2.2.2
+  intl: ^0.19.0
 
 
 
@@ -72,6 +73,7 @@ flutter:
     - assets/computer.jpeg
     - assets/ai.jpeg
     - assets/hassan.jpeg
+    - assets/sportwin.jpeg
 
 
 flutter_icons:
