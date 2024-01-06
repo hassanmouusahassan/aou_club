@@ -18,7 +18,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
         brightness: Brightness.dark,
-
         hintColor: Colors.amber,
       ),
       home: SettingsPage(),
@@ -42,6 +41,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     loadProfile();
+    loadSettings();
   }
 
   void loadProfile() async {
@@ -54,7 +54,6 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-
   void updateProfile(String newName, String newImage) async {
     setState(() {
       userName = newName;
@@ -62,6 +61,20 @@ class _SettingsPageState extends State<SettingsPage> {
     });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userName', newName);
+  }
+
+  void loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isNotificationsOn = prefs.getBool('isNotificationsOn') ?? true;
+      isthemeOn = prefs.getBool('isthemeOn') ?? false;
+    });
+  }
+
+  void saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isNotificationsOn', isNotificationsOn);
+    prefs.setBool('isthemeOn', isthemeOn);
   }
 
   navigateToProfile() {
@@ -146,10 +159,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   onChanged: (bool value) {
                     setState(() {
                       isNotificationsOn = value;
+                      saveSettings();
                     });
                   },
-                  secondary: Icon(isNotificationsOn ? Icons.notifications : Icons.notifications_off_rounded, color: Colors.green),
-                ), SwitchListTile(
+                  secondary: Icon(
+                      isNotificationsOn
+                          ? Icons.notifications
+                          : Icons.notifications_off_rounded,
+                      color: Colors.green),
+                ),
+                SwitchListTile(
                   title: const Text('theme mode',
                       style: TextStyle(color: Colors.grey)),
                   value: isthemeOn,
@@ -158,9 +177,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       Provider.of<ThemeProvider>(context, listen: false)
                           .toggleTheme();
                       isthemeOn = value;
+                      saveSettings();
                     });
                   },
-                  secondary: Icon(isthemeOn ? Icons.light_mode : Icons.dark_mode, color: Colors.green),
+                  secondary: Icon(
+                      isthemeOn ? Icons.light_mode : Icons.dark_mode,
+                      color: Colors.green),
                 ),
 
                 // Add more options here as needed
