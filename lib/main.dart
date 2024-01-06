@@ -1,11 +1,8 @@
-import 'package:aou_club/constants/global_var.dart';
 import 'package:aou_club/constants/theme_provider.dart';
 import 'package:aou_club/screens/club_home_page.dart';
-import 'package:aou_club/screens/login_page.dart';
 import 'package:aou_club/widgets/router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'models/user_data.dart';
 
 void main() {
   runApp(
