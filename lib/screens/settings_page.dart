@@ -1,8 +1,8 @@
-import 'package:aou_club/constants/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:aou_club/screens/profile_page.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:aou_club/screens/profile_page.dart';
+import 'package:aou_club/constants/theme_provider.dart'; // Ensure this is the correct path
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
         brightness: Brightness.dark,
-
         hintColor: Colors.amber,
       ),
       home: SettingsPage(),
@@ -32,28 +31,27 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool isNotificationsOn = true;
+   bool isNotificationsOn= false;
+  bool _isThemeOn = true;
 
-  bool isthemeOn = false;
   String userName = 'Cov Omar';
   String userImage = 'assets/omar.png'; // Ensure this path is valid
 
   @override
   void initState() {
     super.initState();
-    loadProfile();
+    loadPreferences();
   }
 
-  void loadProfile() async {
+  void loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    String? savedName = prefs.getString('userName');
-    if (savedName != null && savedName.isNotEmpty) {
-      setState(() {
-        userName = savedName;
-      });
-    }
+    setState(() {
+      userName = prefs.getString('userName') ?? 'Cov Omar';
+      userImage = prefs.getString('userImage') ?? 'assets/omar.png';
+      isNotificationsOn = prefs.getBool('isNotificationsOn') ?? true;
+      _isThemeOn = prefs.getBool('isThemeOn') ?? false;
+    });
   }
-
 
   void updateProfile(String newName, String newImage) async {
     setState(() {
@@ -62,12 +60,30 @@ class _SettingsPageState extends State<SettingsPage> {
     });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userName', newName);
+    await prefs.setString('userImage', newImage);
+  }
+
+  void updateNotificationPreference(bool value) async {
+    setState(() {
+      isNotificationsOn = value;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isNotificationsOn', isNotificationsOn);
+  }
+
+  void updateThemePreference(bool value) async {
+    setState(() {
+      _isThemeOn = value;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isThemeOn', _isThemeOn);
+    Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
   }
 
   navigateToProfile() {
     Navigator.of(context)
         .push(_createRoute())
-        .then((_) => loadProfile()); // Reload profile on return
+        .then((_) => loadPreferences()); // Reload preferences on return
   }
 
   Route _createRoute() {
@@ -83,7 +99,7 @@ class _SettingsPageState extends State<SettingsPage> {
         var curve = Curves.ease;
 
         var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
@@ -102,8 +118,7 @@ class _SettingsPageState extends State<SettingsPage> {
           InkWell(
             onTap: navigateToProfile,
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 35.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 35.0, horizontal: 16.0),
               child: Row(
                 children: <Widget>[
                   CircleAvatar(
@@ -125,8 +140,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         Text(
                           'AOU Student, ID: 220464',
-                          style:
-                              TextStyle(color: Colors.grey[400], fontSize: 15),
+                          style: TextStyle(color: Colors.grey[400], fontSize: 15),
                         ),
                       ],
                     ),
@@ -140,30 +154,22 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ListView(
               children: [
                 SwitchListTile(
-                  title: const Text('Notifications',
-                      style: TextStyle(color: Colors.grey)),
+                  title: const Text('Notifications', style: TextStyle(color: Colors.grey)),
                   value: isNotificationsOn,
                   onChanged: (bool value) {
-                    setState(() {
-                      isNotificationsOn = value;
-                    });
+                    updateNotificationPreference(value);
                   },
                   secondary: Icon(isNotificationsOn ? Icons.notifications : Icons.notifications_off_rounded, color: Colors.green),
-                ), SwitchListTile(
-                  title: const Text('theme mode',
-                      style: TextStyle(color: Colors.grey)),
-                  value: isthemeOn,
-                  onChanged: (bool value) {
-                    setState(() {
-                      Provider.of<ThemeProvider>(context, listen: false)
-                          .toggleTheme();
-                      isthemeOn = value;
-                    });
-                  },
-                  secondary: Icon(isthemeOn ? Icons.light_mode : Icons.dark_mode, color: Colors.green),
                 ),
-
-                // Add more options here as needed
+                SwitchListTile(
+                  title: const Text('Theme Mode', style: TextStyle(color: Colors.grey)),
+                  value: _isThemeOn,
+                  onChanged: (bool value) {
+                    updateThemePreference(value);
+                  },
+                  secondary: Icon(_isThemeOn ? Icons.light_mode : Icons.dark_mode, color: Colors.green),
+                ),
+                // ... Add more options here as needed ...
               ],
             ),
           ),
@@ -183,4 +189,16 @@ class UserPreferences {
       await _preferences.setString('userName', name);
 
   static String getName() => _preferences.getString('userName') ?? '';
+
+  static Future setThemePreference(bool isDarkMode) async =>
+      await _preferences.setBool('isThemeOn', isDarkMode);
+
+  static bool getThemePreference() =>
+      _preferences.getBool('isThemeOn') ?? false;
+
+  static Future setNotificationPreference(bool isOn) async =>
+      await _preferences.setBool('isNotificationsOn', isOn);
+
+  static bool getNotificationPreference() =>
+      _preferences.getBool('isNotificationsOn') ?? true;
 }

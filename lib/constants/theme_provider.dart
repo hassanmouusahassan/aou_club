@@ -9,7 +9,7 @@ class ThemeProvider extends ChangeNotifier {
 
   void toggleTheme() {
     _currentTheme =
-        (_currentTheme == AppThemes.lightTheme) ? AppThemes.darkTheme : AppThemes.lightTheme;
+        (_currentTheme == AppThemes.darkTheme) ? AppThemes.lightTheme : AppThemes.darkTheme;
     notifyListeners();
   }
 }

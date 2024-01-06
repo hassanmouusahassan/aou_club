@@ -9,6 +9,7 @@ class AppThemes {
 
   static ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
+
     primaryColor: Color.fromARGB(255, 51, 50, 50), // Customize colors as needed
     // Add more theme configurations
   );
