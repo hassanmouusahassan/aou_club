@@ -1,47 +1,73 @@
-import 'package:aou_club/screens/chat_page.dart';
-import 'package:aou_club/screens/clubs_info_pages.dart';
-import 'package:aou_club/screens/news_announcement_page.dart';
-import 'package:aou_club/screens/settings_page.dart';
 import 'package:flutter/material.dart';
+import 'package:aou_club/screens/chat_page.dart'; // Replace with actual import
+import 'package:aou_club/screens/news_announcement_page.dart'; // Replace with actual import
+import 'package:aou_club/screens/settings_page.dart';
+
+import 'clubs_info_pages.dart'; // Replace with actual import
 
 class Club {
   final String name;
   final String admin;
   final String imageUrl;
+  final String description; // Added description field
 
-  Club({required this.name, required this.admin, required this.imageUrl});
+  Club(
+      {required this.name,
+      required this.admin,
+      required this.imageUrl,
+      required this.description});
 }
 
+// Updated club data with description
 List<Club> clubs = [
   Club(
-      name: "Sports Club",
-      admin: "John Doe",
-      imageUrl: "assets/sport.jpeg",),
+    name: "Sports Club",
+    admin: "John Doe",
+    imageUrl: "assets/sport.jpeg",
+    description: "Description for Sports Club",
+  ),
   Club(
-      name: "Dance Club",
-      admin: "Jane Doe",
-      imageUrl: "assets/dancing.jpg",),
+    name: "Dance Club",
+    admin: "Jane Doe",
+    imageUrl: "assets/dancing.jpg",
+    description: "Description for Dance Club",
+  ),
   Club(
-      name: "Music Club",
-      admin: "Jane Doe",
-      imageUrl: "assets/music.jpeg",),
+    name: "Music Club",
+    admin: "Jane Doe",
+    imageUrl: "assets/music.jpeg",
+    description: "Description for Music Club",
+  ),
   Club(
-      name: "Omar Club",
-      admin: "Jane Doe",
-      imageUrl: "assets/omar.png",),
+    name: "Omar Club",
+    admin: "Jane Doe",
+    imageUrl: "assets/omar.png",
+    description: "Description for Omar Club",
+  ),
   Club(
-      name: "Hassan Club",
-      admin: "Jane Doe",
-      imageUrl: "assets/hassan.jpeg"),
+    name: "Hassan Club",
+    admin: "Jane Doe",
+    imageUrl: "assets/hassan.jpeg",
+    description: "Description for Hassan Club",
+  ),
   Club(
-      name: "Computer Club",
-      admin: "Jane Doe",
-      imageUrl: "assets/computer.jpeg",),
+    name: "Computer Club",
+    admin: "Jane Doe",
+    imageUrl: "assets/computer.jpeg",
+    description: "Description for Computer Club",
+  ),
   Club(
-      name: "Music Club",
-      admin: "Jane Doe",
-      imageUrl: "assets/music.jpeg",),
-  Club(name: "AI Club", admin: "Jane Doe", imageUrl: "assets/ai.jpeg"),
+    name: "Music Club",
+    admin: "Jane Doe",
+    imageUrl: "assets/music.jpeg",
+    description: "Description for Music Club",
+  ),
+  Club(
+    name: "AI Club",
+    admin: "Jane Doe",
+    imageUrl: "assets/ai.jpeg",
+    description: "Description for AI Club",
+  ),
 ];
 
 class ClubsPage extends StatefulWidget {
@@ -79,51 +105,53 @@ class _ClubsPageState extends State<ClubsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Center(child: Text(_getTitle(_selectedIndex),style: TextStyle(fontWeight: FontWeight.bold),)),
-          backgroundColor: Colors.black26,
+      appBar: AppBar(
+        title: Center(
+          child: Text(
+            _getTitle(_selectedIndex),
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
-        body: PageView(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          children: [
-            _buildClubsList(),
-             NewsPage(), // Replace with your News Widget
-            ChatPage(), // Replace with your Chat Widget
-            SettingsPage(), // Replace with your Settings Widget
-          ],
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home, color: Colors.blue), // Set color for Home
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.local_fire_department,
-                  color: Colors.green), // Set color for News
-              label: 'News',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat, color: Colors.orange), // Set color for Chat
-              label: 'Chat',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings,
-                  color: Colors.purple), // Set color for Settings
-              label: 'Settings',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.deepPurple,
-          onTap: _onItemTapped,
-        ),
-      );
-
+        backgroundColor: Colors.black26,
+      ),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        children: [
+          _buildClubsList(),
+          NewsPage(), // Replace with your News Widget
+          ChatPage(), // Replace with your Chat Widget
+          SettingsPage(), // Replace with your Settings Widget
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home, color: Colors.blue),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_fire_department, color: Colors.green),
+            label: 'News',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat, color: Colors.orange),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings, color: Colors.purple),
+            label: 'Settings',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.deepPurple,
+        onTap: _onItemTapped,
+      ),
+    );
   }
 
   Widget _buildClubsList() {
@@ -138,7 +166,6 @@ class _ClubsPageState extends State<ClubsPage> {
                 builder: (context) => ClubInfoPage(club: clubs[index]),
               ),
             );
-            print('Tapped on ${clubs[index].name}');
           },
           child: ClubCard(club: clubs[index]),
         );
