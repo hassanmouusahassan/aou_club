@@ -132,8 +132,12 @@ class _ClubsPageState extends State<ClubsPage> {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const ClubInfo()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ClubInfoPage(club: clubs[index]),
+              ),
+            );
             print('Tapped on ${clubs[index].name}');
           },
           child: ClubCard(club: clubs[index]),
