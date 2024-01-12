@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "299969906157",
+    "project_id": "aou-clubs",
+    "storage_bucket": "aou-clubs.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299969906157:android:3b930df1e8f4236ede13e4",
+        "android_client_info": {
+          "package_name": "com.example.aou_club"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC-RGIaOxA9rWKFZsfBmNkXUjV04F-Yiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
