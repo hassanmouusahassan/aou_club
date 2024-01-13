@@ -128,7 +128,7 @@ class _ClubsPageState extends State<ClubsPage> {
           _buildClubsList(),
           const NewsPage(), // Replace with your News Widget
           const ChatPage(), // Replace with your Chat Widget
-          const SettingsPage(), // Replace with your Settings Widget
+          SettingsPage(), // Replace with your Settings Widget
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

@@ -26,6 +26,7 @@ class LoginPage extends StatelessWidget {
 
     // Navigate to the next screen upon successful login
     // You can replace this with your desired navigation logic
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const ClubsPage()),
@@ -34,6 +35,7 @@ class LoginPage extends StatelessWidget {
     // Handle login errors (e.g., invalid username or password)
     print('Login Error: $e');
     // You can show a Snackbar or Dialog with an error message
+    // ignore: use_build_context_synchronously
     showDialog(
       context: context,
       builder: (BuildContext context) {

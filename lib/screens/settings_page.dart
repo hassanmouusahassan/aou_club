@@ -1,3 +1,4 @@
+import 'package:aou_club/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aou_club/screens/profile_page.dart';
@@ -7,12 +8,10 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UserPreferences.init();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,16 +21,13 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         hintColor: Colors.amber,
       ),
-      home: const SettingsPage(),
+      home: SettingsPage(),
     );
   }
 }
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
-
   @override
-  // ignore: library_private_types_in_public_api
   _SettingsPageState createState() => _SettingsPageState();
 }
 
@@ -82,7 +78,6 @@ class _SettingsPageState extends State<SettingsPage> {
     });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isThemeOn', _isThemeOn);
-    // ignore: use_build_context_synchronously
     Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
   }
 
@@ -91,7 +86,15 @@ class _SettingsPageState extends State<SettingsPage> {
         .push(_createRoute())
         .then((_) => loadPreferences()); // Reload preferences on return
   }
+  void logout() async {
+  final prefs = await SharedPreferences.getInstance();
+  prefs.clear(); // Clear all user preferences
 
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => LoginPage()),
+  );
+}
   Route _createRoute() {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => ProfilePage(
@@ -131,7 +134,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     backgroundImage: AssetImage(userImage),
                     radius: 30,
                   ),
-                  const SizedBox(width: 24),
+                  SizedBox(width: 24),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +178,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   secondary: Icon(_isThemeOn ? Icons.light_mode : Icons.dark_mode, color: Colors.green),
                 ),
-                // ... Add more options here as needed ...
+                ListTile(
+                  title: const Text('Logout', style: TextStyle(color: Colors.grey)),
+                  onTap: logout,
+                  leading: const Icon(Icons.exit_to_app, color: Colors.red),
+                ),
               ],
             ),
           ),
