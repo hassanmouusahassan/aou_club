@@ -1,7 +1,9 @@
+import 'package:aou_club/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aou_club/screens/chat_page.dart'; // Replace with actual import
 import 'package:aou_club/screens/news_announcement_page.dart'; // Replace with actual import
 import 'package:aou_club/screens/settings_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'clubs_info_pages.dart'; // Replace with actual import
 
@@ -74,7 +76,6 @@ class ClubsPage extends StatefulWidget {
   const ClubsPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ClubsPageState createState() => _ClubsPageState();
 }
 
@@ -92,10 +93,10 @@ class _ClubsPageState extends State<ClubsPage> {
 
   String _getTitle(int index) {
     switch (index) {
-      case 0:
-        return 'AOU CLUBS';
-      case 1:
-        return 'News';
+    case 0:
+    return 'AOU CLUBS';
+    case 1:
+      return 'News';
       case 2:
         return 'Chat';
       case 3:
@@ -103,6 +104,29 @@ class _ClubsPageState extends State<ClubsPage> {
       default:
         return '';
     }
+  }
+  void confirmLogout() {
+    final snackBar = SnackBar(
+      content: Text('Do you really want to log out?'),
+      action: SnackBarAction(
+        label: 'Logout',
+        onPressed: () {
+
+          _logout();
+        },
+      ),
+      duration: Duration(seconds: 5),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _logout() async {
+
+// Implement your logout functionality here
+// For example, clear shared preferences and navigate to the login screen
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage())); // Replace with your login screen
   }
 
   @override
@@ -116,6 +140,12 @@ class _ClubsPageState extends State<ClubsPage> {
           ),
         ),
         backgroundColor: Colors.black26,
+        actions: _selectedIndex == 3 ? [
+          IconButton(
+            icon: const Icon(Icons.exit_to_app, color: Colors.red),
+            onPressed: confirmLogout,
+          ),
+        ] : null,
       ),
       body: PageView(
         controller: _pageController,
@@ -176,6 +206,8 @@ class _ClubsPageState extends State<ClubsPage> {
     );
   }
 }
+
+
 
 class ClubCard extends StatelessWidget {
   final Club club;

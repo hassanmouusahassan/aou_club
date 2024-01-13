@@ -1,44 +1,34 @@
-// ignore: avoid_web_libraries_in_flutter
-
-import 'package:aou_club/screens/club_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:aou_club/screens/club_home_page.dart'; // Ensure this import is correct
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+
   static const String routeName = '/login';
 
   LoginPage({super.key});
 
-  // Create an instance of FirebaseAuth
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // TextEditingController for email and password fields
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
-  // Function to handle login
+  final TextEditingController passwordController = TextEditingController();
+  bool _isPasswordVisible = false; // Add this line
+
   Future<void> _login(String email, String password, BuildContext context) async {
     try {
-      // Sign in with the provided email and password
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Save login status to Shared Preferences
-      saveLoginStatus(true);
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const ClubsPage()),
-      );
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await saveLoginStatus(true);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ClubsPage()));
     } catch (e) {
-      // Handle login errors (e.g., invalid username or password)
       print('Login Error: $e');
-      // You can show a Snackbar or Dialog with an error message
-      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -47,9 +37,7 @@ class LoginPage extends StatelessWidget {
             content: const Text('Invalid email or password. Please try again.'),
             actions: <Widget>[
               TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+                onPressed: () => Navigator.of(context).pop(),
                 child: const Text('OK'),
               ),
             ],
@@ -59,20 +47,14 @@ class LoginPage extends StatelessWidget {
     }
   }
 
-  // Check if the user is already logged in
   Future<void> checkLoginStatus(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
     if (isLoggedIn) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const ClubsPage()),
-      );
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ClubsPage()));
     }
   }
 
-  // Save login status to Shared Preferences
   Future<void> saveLoginStatus(bool isLoggedIn) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', isLoggedIn);
@@ -80,145 +62,122 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Check if the user is already logged in
     checkLoginStatus(context);
 
     return Scaffold(
+
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            size: 20,
-            color: Colors.black,
-          ),
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios, size: 20, color: Colors.black),
         ),
         systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  const Column(
-                    children: <Widget>[
-                      Text(
-                        "Login",
-                        style: TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "Login to your account",
-                        style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)),
-                      )
-                    ],
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const SizedBox(height: 20),
+                Text(
+                  "Login",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Login to your account",
+                  style: TextStyle(fontSize: 15, color: Colors.grey),
+                ),
+                const SizedBox(height: 30),
+                inputFile(label: "Email", controller: emailController),
+                inputFile(
+                  label: "Password",
+                  obscureText: !_isPasswordVisible, // Use the state variable here
+                  controller: passwordController,
+                  icon: IconButton(
+                    icon: Icon(
+                      // Change the icon based on the state
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    onPressed: () {
+                      // Update the state on press
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Column(
-                      children: <Widget>[
-                        inputFile(label: "Email", controller: emailController),
-                        inputFile(
-                            label: "Password",
-                            obscureText: true,
-                            controller: passwordController),
-                      ],
+                ),
+                const SizedBox(height: 20),
+                MaterialButton(
+                  minWidth: double.infinity,
+                  height: 60,
+                  onPressed: () {
+                    String email = emailController.text.trim();
+                    String password = passwordController.text.trim();
+                    _login(email, password, context);
+                  },
+                  color: Theme.of(context).primaryColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  child: const Text(
+                    "Login",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      color: Colors.white,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Container(
-                      padding: const EdgeInsets.only(top: 3, left: 3),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        border: const Border(
-                          bottom: BorderSide(color: Colors.black),
-                          top: BorderSide(color: Colors.black),
-                          left: BorderSide(color: Colors.black),
-                          right: BorderSide(color: Colors.black),
-                        ),
-                      ),
-                      child: MaterialButton(
-                        minWidth: double.infinity,
-                        height: 60,
-                        onPressed: () {
-                          String email = emailController.text.trim();
-                          String password = passwordController.text.trim();
-                          _login(email, password, context);
-                        },
-                        color: const Color(0xff0095FF),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: const Text(
-                          "Login",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(top: 100),
-                    height: 200,
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 40),
+                // Additional options like 'Forgot Password?' or 'Sign Up' can be added here.
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
-}
 
-
-// we will be creating a widget for text field
-Widget inputFile({label, obscureText = false, TextEditingController? controller}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
-      Text(
-        label,
-        style: const TextStyle(
-            fontSize: 15, fontWeight: FontWeight.w400, color: Colors.black87),
-      ),
-      const SizedBox(
-        height: 5,
-      ),
-      TextField(
-        controller: controller, // Pass the controller to the TextField
-        obscureText: obscureText,
-        style: TextStyle(color: Colors.black),
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
-          ),
-          border: OutlineInputBorder(
-              borderSide: BorderSide(color: Color.fromARGB(255, 13, 0, 253))),
+  Widget inputFile({
+    required String label,
+    bool obscureText = false,
+    TextEditingController? controller,
+    Widget? icon, // Add this parameter for the icon
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: const TextStyle(
+              fontSize: 15, fontWeight: FontWeight.w400, color: Colors.black87),
         ),
-      ),
-      const SizedBox(height: 10,)
-    ],
-  );
+        const SizedBox(height: 5),
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          style: const TextStyle(color: Colors.black),
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade400),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade800),
+            ),
+            suffixIcon: icon, // Add the icon here
+          ),
+        ),
+        const SizedBox(height: 15),
+      ],
+    );
+  }
 }
-

@@ -1,30 +1,9 @@
-import 'package:aou_club/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aou_club/screens/profile_page.dart';
-import 'package:aou_club/constants/theme_provider.dart'; // Ensure this is the correct path
+import 'package:aou_club/screens/login_page.dart';
 import 'package:provider/provider.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await UserPreferences.init();
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Settings UI',
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
-        brightness: Brightness.dark,
-        hintColor: Colors.amber,
-      ),
-      home: SettingsPage(),
-    );
-  }
-}
+import 'package:aou_club/constants/theme_provider.dart'; // Ensure this path is correct
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -32,7 +11,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-   bool isNotificationsOn= false;
+  bool isNotificationsOn = false;
   bool _isThemeOn = true;
 
   String userName = 'Cov Omar';
@@ -81,47 +60,63 @@ class _SettingsPageState extends State<SettingsPage> {
     Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
   }
 
+  void confirmLogout() {
+    final snackBar = SnackBar(
+      content: Text('Do you really want to log out?'),
+      action: SnackBarAction(
+        label: 'Logout',
+        onPressed: () {
+          logout();
+        },
+      ),
+      duration: Duration(seconds: 5),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear(); // Clear all user preferences
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
   navigateToProfile() {
     Navigator.of(context)
         .push(_createRoute())
         .then((_) => loadPreferences()); // Reload preferences on return
   }
-  void logout() async {
-  final prefs = await SharedPreferences.getInstance();
-  prefs.clear(); // Clear all user preferences
 
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => LoginPage()),
-  );
-}
   Route _createRoute() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => ProfilePage(
-        userName: userName,
-        userImage: userImage,
-        onUpdate: updateProfile,
-      ),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(1.0, 0.0);
-        var end = Offset.zero;
-        var curve = Curves.ease;
+        pageBuilder: (context, animation, secondaryAnimation) => ProfilePage(
+      userName: userName,
+      userImage: userImage,
+      onUpdate: updateProfile,
+    ),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+    var begin = const Offset(1.0, 0.0);
+    var end =Offset.zero;
+    var curve = Curves.ease;
+    var tween =
+    Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+    var offsetAnimation = animation.drive(tween);
 
-        var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
+    return SlideTransition(
+      position: offsetAnimation,
+      child: child,
+    );
+    },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       body: Column(
         children: <Widget>[
           InkWell(
@@ -178,11 +173,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   secondary: Icon(_isThemeOn ? Icons.light_mode : Icons.dark_mode, color: Colors.green),
                 ),
-                ListTile(
-                  title: const Text('Logout', style: TextStyle(color: Colors.grey)),
-                  onTap: logout,
-                  leading: const Icon(Icons.exit_to_app, color: Colors.red),
-                ),
+// The 'Logout' list tile has been removed as the logout functionality is now in the AppBar
               ],
             ),
           ),
@@ -190,28 +181,4 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
-}
-
-class UserPreferences {
-  static late SharedPreferences _preferences;
-
-  static Future init() async =>
-      _preferences = await SharedPreferences.getInstance();
-
-  static Future setName(String name) async =>
-      await _preferences.setString('userName', name);
-
-  static String getName() => _preferences.getString('userName') ?? '';
-
-  static Future setThemePreference(bool isDarkMode) async =>
-      await _preferences.setBool('isThemeOn', isDarkMode);
-
-  static bool getThemePreference() =>
-      _preferences.getBool('isThemeOn') ?? false;
-
-  static Future setNotificationPreference(bool isOn) async =>
-      await _preferences.setBool('isNotificationsOn', isOn);
-
-  static bool getNotificationPreference() =>
-      _preferences.getBool('isNotificationsOn') ?? true;
 }
