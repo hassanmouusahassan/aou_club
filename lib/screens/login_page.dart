@@ -1,5 +1,5 @@
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:js';
+
 import 'package:aou_club/screens/club_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
