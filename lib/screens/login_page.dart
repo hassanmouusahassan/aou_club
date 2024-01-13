@@ -68,75 +68,69 @@ class _LoginPageState extends State<LoginPage> {
 
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.black,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios, size: 20, color: Colors.black),
-        ),
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const SizedBox(height: 20),
-                Text(
-                  "Login",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Login to your account",
-                  style: TextStyle(fontSize: 15, color: Colors.grey),
-                ),
-                const SizedBox(height: 30),
-                inputFile(label: "Email", controller: emailController),
-                inputFile(
-                  label: "Password",
-                  obscureText: !_isPasswordVisible, // Use the state variable here
-                  controller: passwordController,
-                  icon: IconButton(
-                    icon: Icon(
-                      // Change the icon based on the state
-                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    onPressed: () {
-                      // Update the state on press
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                MaterialButton(
-                  minWidth: double.infinity,
-                  height: 60,
-                  onPressed: () {
-                    String email = emailController.text.trim();
-                    String password = passwordController.text.trim();
-                    _login(email, password, context);
-                  },
-                  color: Theme.of(context).primaryColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  child: const Text(
+      
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const SizedBox(height: 20),
+                  Text(
                     "Login",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                      color: Colors.white,
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Login to your account",
+                    style: TextStyle(fontSize: 15, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 30),
+                  inputFile(label: "Email", controller: emailController),
+                  inputFile(
+                    label: "Password",
+                    obscureText: !_isPasswordVisible, // Use the state variable here
+                    controller: passwordController,
+                    icon: IconButton(
+                      icon: Icon(
+                        // Change the icon based on the state
+                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      onPressed: () {
+                        // Update the state on press
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
                     ),
                   ),
-                ),
-                const SizedBox(height: 40),
-                // Additional options like 'Forgot Password?' or 'Sign Up' can be added here.
-              ],
+                  const SizedBox(height: 20),
+                  MaterialButton(
+                    minWidth: double.infinity,
+                    height: 60,
+                    onPressed: () {
+                      String email = emailController.text.trim();
+                      String password = passwordController.text.trim();
+                      _login(email, password, context);
+                    },
+                    color: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    child: const Text(
+                      "Login",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  // Additional options like 'Forgot Password?' or 'Sign Up' can be added here.
+                ],
+              ),
             ),
           ),
         ),

@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).currentTheme,
       onGenerateRoute: ((settings) => generateRoute(settings)),
-      home: ClubsPage(),
+      home: LoginPage(),
     );
   }
 }
