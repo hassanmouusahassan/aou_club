@@ -4,10 +4,13 @@ import 'package:aou_club/screens/club_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatelessWidget {
   static const String routeName = '/login';
+
   LoginPage({super.key});
+
   // Create an instance of FirebaseAuth
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -17,48 +20,69 @@ class LoginPage extends StatelessWidget {
 
   // Function to handle login
   Future<void> _login(String email, String password, BuildContext context) async {
-  try {
-    // Sign in with the provided email and password
-    await _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    try {
+      // Sign in with the provided email and password
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    // Navigate to the next screen upon successful login
-    // You can replace this with your desired navigation logic
-    // ignore: use_build_context_synchronously
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const ClubsPage()),
-    );
-  } catch (e) {
-    // Handle login errors (e.g., invalid username or password)
-    print('Login Error: $e');
-    // You can show a Snackbar or Dialog with an error message
-    // ignore: use_build_context_synchronously
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Login Error'),
-          content: const Text('Invalid email or password. Please try again.'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
+      // Save login status to Shared Preferences
+      saveLoginStatus(true);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ClubsPage()),
+      );
+    } catch (e) {
+      // Handle login errors (e.g., invalid username or password)
+      print('Login Error: $e');
+      // You can show a Snackbar or Dialog with an error message
+      // ignore: use_build_context_synchronously
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Login Error'),
+            content: const Text('Invalid email or password. Please try again.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
-}
 
+  // Check if the user is already logged in
+  Future<void> checkLoginStatus(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ClubsPage()),
+      );
+    }
+  }
+
+  // Save login status to Shared Preferences
+  Future<void> saveLoginStatus(bool isLoggedIn) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isLoggedIn', isLoggedIn);
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Check if the user is already logged in
+    checkLoginStatus(context);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -84,85 +108,88 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Expanded(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                const Column(
-                  children: <Widget>[
-                    Text(
-                      "Login",
-                      style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      "Login to your account",
-                      style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)),
-                    )
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Column(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  const Column(
                     children: <Widget>[
-                      inputFile(label: "Email", controller: emailController),
-                      inputFile(
-                          label: "Password",
-                          obscureText: true,
-                          controller: passwordController),
+                      Text(
+                        "Login",
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Login to your account",
+                        style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)),
+                      )
                     ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Container(
-                    padding: const EdgeInsets.only(top: 3, left: 3),
-                    decoration: BoxDecoration(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Column(
+                      children: <Widget>[
+                        inputFile(label: "Email", controller: emailController),
+                        inputFile(
+                            label: "Password",
+                            obscureText: true,
+                            controller: passwordController),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Container(
+                      padding: const EdgeInsets.only(top: 3, left: 3),
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(50),
                         border: const Border(
                           bottom: BorderSide(color: Colors.black),
                           top: BorderSide(color: Colors.black),
                           left: BorderSide(color: Colors.black),
                           right: BorderSide(color: Colors.black),
-                        )),
-                    child: MaterialButton(
-                      minWidth: double.infinity,
-                      height: 60,
-                      onPressed: () {
-                        String email = emailController.text.trim();
-                        String password = passwordController.text.trim();
-                        _login(email, password, context);
-                      },
-                      color: const Color(0xff0095FF),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
+                        ),
                       ),
-                      child: const Text(
-                        "Login",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 18,
-                          color: Colors.white,
+                      child: MaterialButton(
+                        minWidth: double.infinity,
+                        height: 60,
+                        onPressed: () {
+                          String email = emailController.text.trim();
+                          String password = passwordController.text.trim();
+                          _login(email, password, context);
+                        },
+                        color: const Color(0xff0095FF),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: const Text(
+                          "Login",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.only(top: 100),
-                  height: 200,
-                )
-              ],
-            ))
+                  Container(
+                    padding: const EdgeInsets.only(top: 100),
+                    height: 200,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
+
 
 // we will be creating a widget for text field
 Widget inputFile({label, obscureText = false, TextEditingController? controller}) {
