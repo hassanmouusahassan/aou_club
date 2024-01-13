@@ -6,7 +6,7 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
     case LoginPage.routeName:
       return MaterialPageRoute(
         settings: routeSettings,
-        builder: (_) => const LoginPage(),
+        builder: (_) => LoginPage(),
       );
     default:
       return MaterialPageRoute(

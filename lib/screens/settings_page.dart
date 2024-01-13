@@ -7,10 +7,12 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UserPreferences.init();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,13 +22,16 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         hintColor: Colors.amber,
       ),
-      home: SettingsPage(),
+      home: const SettingsPage(),
     );
   }
 }
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _SettingsPageState createState() => _SettingsPageState();
 }
 
@@ -77,6 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
     });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isThemeOn', _isThemeOn);
+    // ignore: use_build_context_synchronously
     Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
   }
 
@@ -125,7 +131,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     backgroundImage: AssetImage(userImage),
                     radius: 30,
                   ),
-                  SizedBox(width: 24),
+                  const SizedBox(width: 24),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

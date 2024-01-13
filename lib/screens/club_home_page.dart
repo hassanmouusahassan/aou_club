@@ -71,7 +71,10 @@ List<Club> clubs = [
 ];
 
 class ClubsPage extends StatefulWidget {
+  const ClubsPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ClubsPageState createState() => _ClubsPageState();
 }
 
@@ -109,7 +112,7 @@ class _ClubsPageState extends State<ClubsPage> {
         title: Center(
           child: Text(
             _getTitle(_selectedIndex),
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
         backgroundColor: Colors.black26,
@@ -123,9 +126,9 @@ class _ClubsPageState extends State<ClubsPage> {
         },
         children: [
           _buildClubsList(),
-          NewsPage(), // Replace with your News Widget
-          ChatPage(), // Replace with your Chat Widget
-          SettingsPage(), // Replace with your Settings Widget
+          const NewsPage(), // Replace with your News Widget
+          const ChatPage(), // Replace with your Chat Widget
+          const SettingsPage(), // Replace with your Settings Widget
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

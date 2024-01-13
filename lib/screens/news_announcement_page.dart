@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For date formatting
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         brightness: Brightness.dark,
       ),
-      home: NewsPage(),
+      home: const NewsPage(),
     );
   }
 }
@@ -76,11 +78,13 @@ List<News> newsList = [
 ];
 
 class NewsPage extends StatelessWidget {
+  const NewsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: ListView.builder(
           itemCount: newsList.length,
           itemBuilder: (context, index) {
@@ -95,7 +99,7 @@ class NewsPage extends StatelessWidget {
 class NewsCard extends StatelessWidget {
   final News news;
 
-  NewsCard({required this.news});
+  const NewsCard({super.key, required this.news});
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +108,7 @@ class NewsCard extends StatelessWidget {
         DateFormat('yyyy-MM-dd – hh:mm a').format(news.date); // 12-hour format
 
     return Card(
-      margin: EdgeInsets.all(8.0),
+      margin: const EdgeInsets.all(8.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
         side: BorderSide(
@@ -117,11 +121,11 @@ class NewsCard extends StatelessWidget {
       child: Column(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
             child: Image.asset(news.imageUrl,fit: BoxFit.cover),
           ),
           Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -135,7 +139,7 @@ class NewsCard extends StatelessWidget {
                         : Colors.red,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   news.content,
                   style: TextStyle(
@@ -145,7 +149,7 @@ class NewsCard extends StatelessWidget {
                         : Colors.black,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Published on: $formattedDate',
                   style: TextStyle(

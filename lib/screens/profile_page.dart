@@ -7,9 +7,10 @@ class ProfilePage extends StatefulWidget {
   final String userImage;
   final Function(String, String) onUpdate;
 
-  ProfilePage({Key? key, required this.userName, required this.userImage, required this.onUpdate}) : super(key: key);
+  const ProfilePage({Key? key, required this.userName, required this.userImage, required this.onUpdate}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _ProfilePageState createState() => _ProfilePageState();
 }
 
@@ -43,10 +44,10 @@ class _ProfilePageState extends State<ProfilePage> {
             width: MediaQuery.of(context).size.width * 0.8,
             height: MediaQuery.of(context).size.width * 0.8,
             fit: BoxFit.contain,
-          ) : Text("No image selected."),
+          ) : const Text("No image selected."),
           actions: <Widget>[
             TextButton(
-              child: Text('Close'),
+              child: const Text('Close'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -66,6 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } catch (e) {
+      // ignore: avoid_print
       print("Image picker error: $e");
       // Handle error or notify user
     }
@@ -75,7 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Profile'),
+        title: const Text('Edit Profile'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -88,15 +90,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 radius: 60,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _pickImage,
-              child: Text('Change Image'),
+              child: const Text('Change Image'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Name',
                 border: OutlineInputBorder(),
                 hintText: 'Enter your name',
@@ -105,13 +107,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 currentName = value;
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 widget.onUpdate(currentName, currentImage);
                 Navigator.pop(context);
               },
-              child: Text('Save Changes'),
+              child: const Text('Save Changes'),
             ),
           ],
         ),
