@@ -1,3 +1,4 @@
+import 'package:aou_club/screens/news_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For date formatting
 
@@ -84,7 +85,17 @@ class NewsPage extends StatelessWidget {
         child: ListView.builder(
           itemCount: newsList.length,
           itemBuilder: (context, index) {
-            return NewsCard(news: newsList[index]);
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          NewsDetailPage(news: newsList[index])),
+                );
+              },
+              child: NewsCard(news: newsList[index]),
+            );
           },
         ),
       ),
@@ -118,7 +129,7 @@ class NewsCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
-            child: Image.asset(news.imageUrl,fit: BoxFit.cover),
+            child: Image.asset(news.imageUrl, fit: BoxFit.cover),
           ),
           Padding(
             padding: EdgeInsets.all(16.0),
@@ -164,3 +175,4 @@ class NewsCard extends StatelessWidget {
     );
   }
 }
+
