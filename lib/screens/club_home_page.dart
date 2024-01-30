@@ -10,8 +10,8 @@ import 'clubs_info_pages.dart'; // Replace with actual import
 class Club {
   final String name;
   final String admin;
-  final String imageUrl;
-  final String description; // Added description field
+  late final String imageUrl;
+  late final String description; // Added description field
 
   Club(
       {required this.name,
@@ -196,9 +196,10 @@ class _ClubsPageState extends State<ClubsPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ClubInfoPage(club: clubs[index]),
+                builder: (context) => ClubInfoPage(club: clubs[index], isAdmin: true,),
               ),
             );
+
           },
           child: ClubCard(club: clubs[index]),
         );
