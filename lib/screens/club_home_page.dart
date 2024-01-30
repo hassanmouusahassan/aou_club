@@ -4,8 +4,10 @@ import 'package:aou_club/screens/chat_page.dart'; // Replace with actual import
 import 'package:aou_club/screens/news_announcement_page.dart'; // Replace with actual import
 import 'package:aou_club/screens/settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:aou_club/models/club_data.dart';
 import 'clubs_info_pages.dart'; // Replace with actual import
+// club_home_page.dart
+import 'package:flutter/material.dart';
 
 class Club {
   final String name;
@@ -13,13 +15,13 @@ class Club {
   late final String imageUrl;
   late final String description; // Added description field
 
-  Club(
-      {required this.name,
-      required this.admin,
-      required this.imageUrl,
-      required this.description});
+  Club({
+    required this.name,
+    required this.admin,
+    required this.imageUrl,
+    required this.description,
+  });
 }
-
 // Updated club data with description
 List<Club> clubs = [
   Club(

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:aou_club/screens/club_home_page.dart'; // Import your Club model
+
+import 'package:aou_club/models/club_data.dart';
+import 'club_home_page.dart' as ClubPage; // Use an alias
 
 class ClubInfoPage extends StatefulWidget {
-  final Club club;
+  final ClubPage.Club club; // Use the alias to disambiguate
   final bool isAdmin;
 
   const ClubInfoPage({Key? key, required this.club, required this.isAdmin}) : super(key: key);
@@ -95,6 +97,38 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
     );
   }
 
+  void addEvent() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Event'),
+          content: TextField(
+            controller: upcomingEventsController,
+            decoration: InputDecoration(hintText: 'Enter new event'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  events.add(upcomingEventsController.text); // Add new event
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void editGallery() {
     showDialog(
       context: context,
@@ -127,6 +161,38 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
     );
   }
 
+  void addImageToGallery() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Image to Gallery'),
+          content: TextField(
+            controller: galleryController,
+            decoration: InputDecoration(hintText: 'Enter new image URL'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  galleryImages.add(galleryController.text); // Add new image to the gallery
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,6 +211,7 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                   widget.club.imageUrl,
                   fit: BoxFit.cover,
                   height: 250,
+                  width: double.infinity,
                 ),
                 if (widget.isAdmin)
                   Padding(
@@ -194,9 +261,17 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                         style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                       ),
                       if (widget.isAdmin)
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: editUpcomingEvents,
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: editUpcomingEvents,
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.add),
+                              onPressed: addEvent,
+                            ),
+                          ],
                         ),
                     ],
                   ),
@@ -222,12 +297,7 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    IconButton(
-                                      icon: Icon(Icons.thumb_up),
-                                      onPressed: () {
-                                        print('Like Event ${index + 1}');
-                                      },
-                                    ),
+
                                     IconButton(
                                       icon: Icon(Icons.close),
                                       onPressed: () {
@@ -252,9 +322,17 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                         style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                       ),
                       if (widget.isAdmin)
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: editGallery,
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: editGallery,
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.add),
+                              onPressed: addImageToGallery,
+                            ),
+                          ],
                         ),
                     ],
                   ),
@@ -281,12 +359,7 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    IconButton(
-                                      icon: Icon(Icons.thumb_up),
-                                      onPressed: () {
-                                        print('Like Image ${index + 1}');
-                                      },
-                                    ),
+
                                     IconButton(
                                       icon: Icon(Icons.close),
                                       onPressed: () {
