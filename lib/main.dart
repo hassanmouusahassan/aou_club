@@ -1,5 +1,7 @@
+
+
 import 'package:aou_club/constants/theme_provider.dart';
-import 'package:aou_club/screens/club_home_page.dart';
+
 import 'package:aou_club/screens/login_page.dart';
 
 import 'package:aou_club/widgets/router.dart';
@@ -23,6 +25,7 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
+
       child: const MyApp(),
     ),
   );

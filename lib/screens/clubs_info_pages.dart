@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import the date format library
 
-import 'package:aou_club/models/club_data.dart';
-import 'club_home_page.dart' as ClubPage; // Use an alias
+import 'club_home_page.dart' as ClubPage;
+
+class Event {
+  String name;
+  DateTime dateTime;
+
+  Event({required this.name, required this.dateTime});
+}
 
 class ClubInfoPage extends StatefulWidget {
-  final ClubPage.Club club; // Use the alias to disambiguate
+  ClubPage.Club club; // Use the alias to disambiguate
   final bool isAdmin;
 
-  const ClubInfoPage({Key? key, required this.club, required this.isAdmin}) : super(key: key);
+  ClubInfoPage({Key? key, required this.club, required this.isAdmin}) : super(key: key);
 
   @override
   _ClubInfoPageState createState() => _ClubInfoPageState();
 }
 
 class _ClubInfoPageState extends State<ClubInfoPage> {
-  List<String> events = List.generate(5, (index) => 'Event ${index + 1}');
-  List<String> galleryImages = List.generate(5, (index) => 'https://via.placeholder.com/150');
+  List<Event> events = [
+    Event(name: 'Event 1', dateTime: DateTime.now()), // Initial event with current date and time
+  ];
+  List<String> galleryImages = List.generate(1, (index) => 'https://via.placeholder.com/150');
 
   TextEditingController aboutClubController = TextEditingController();
   TextEditingController upcomingEventsController = TextEditingController();
@@ -55,6 +64,9 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                 setState(() {
                   widget.club.description = aboutClubController.text;
                 });
+
+                // Save changes to persistent storage or backend here if needed
+
                 Navigator.of(context).pop();
               },
               child: Text('Save'),
@@ -85,8 +97,13 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  events = upcomingEventsController.text.split(','); // Update events with new data
+                  events = upcomingEventsController.text.split(',').map((eventName) {
+                    return Event(name: eventName, dateTime: DateTime.now());
+                  }).toList();
                 });
+
+                // Save changes to persistent storage or backend here if needed
+
                 Navigator.of(context).pop();
               },
               child: Text('Save'),
@@ -101,11 +118,54 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        DateTime selectedDate = DateTime.now();
+        TimeOfDay selectedTime = TimeOfDay.now();
+
         return AlertDialog(
           title: Text('Add Event'),
-          content: TextField(
-            controller: upcomingEventsController,
-            decoration: InputDecoration(hintText: 'Enter new event'),
+          content: Column(
+            children: [
+              TextField(
+                controller: upcomingEventsController,
+                decoration: InputDecoration(hintText: 'Enter new event name'),
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () async {
+                  // Show date picker
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2101),
+                  );
+
+                  if (pickedDate != null && pickedDate != selectedDate) {
+                    setState(() {
+                      selectedDate = pickedDate;
+                    });
+                  }
+                },
+                child: Text('Pick Date'),
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () async {
+                  // Show time picker
+                  TimeOfDay? pickedTime = await showTimePicker(
+                    context: context,
+                    initialTime: selectedTime,
+                  );
+
+                  if (pickedTime != null && pickedTime != selectedTime) {
+                    setState(() {
+                      selectedTime = pickedTime;
+                    });
+                  }
+                },
+                child: Text('Pick Time'),
+              ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
@@ -117,8 +177,20 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  events.add(upcomingEventsController.text); // Add new event
+                  events.add(Event(
+                    name: upcomingEventsController.text,
+                    dateTime: DateTime(
+                      selectedDate.year,
+                      selectedDate.month,
+                      selectedDate.day,
+                      selectedTime.hour,
+                      selectedTime.minute,
+                    ),
+                  ));
                 });
+
+                // Save changes to persistent storage or backend here if needed
+
                 Navigator.of(context).pop();
               },
               child: Text('Save'),
@@ -149,8 +221,11 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  galleryImages = galleryController.text.split(','); // Update gallery with new data
+                  galleryImages = galleryController.text.split(',');
                 });
+
+                // Save changes to persistent storage or backend here if needed
+
                 Navigator.of(context).pop();
               },
               child: Text('Save'),
@@ -181,8 +256,11 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  galleryImages.add(galleryController.text); // Add new image to the gallery
+                  galleryImages.add(galleryController.text);
                 });
+
+                // Save changes to persistent storage or backend here if needed
+
                 Navigator.of(context).pop();
               },
               child: Text('Save'),
@@ -219,7 +297,6 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                     child: IconButton(
                       icon: Icon(Icons.edit),
                       onPressed: () {
-                        // Handle the action for changing the image
                         print('Change Image');
                       },
                     ),
@@ -264,10 +341,6 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                         Row(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: editUpcomingEvents,
-                            ),
-                            IconButton(
                               icon: Icon(Icons.add),
                               onPressed: addEvent,
                             ),
@@ -276,7 +349,6 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                     ],
                   ),
                   const SizedBox(height: 8.0),
-                  // Placeholder for events, replace with actual data
                   SizedBox(
                     height: 100,
                     child: ListView.builder(
@@ -289,15 +361,21 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                             children: [
                               SizedBox(
                                 width: 180,
-                                child: Center(
-                                  child: Text(events[index]),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(events[index].name),
+                                    Text(
+                                      DateFormat('MMMM d, y H:mm a').format(events[index].dateTime),
+                                      style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                                    ),
+                                  ],
                                 ),
                               ),
                               if (widget.isAdmin)
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-
                                     IconButton(
                                       icon: Icon(Icons.close),
                                       onPressed: () {
@@ -325,10 +403,6 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                         Row(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: editGallery,
-                            ),
-                            IconButton(
                               icon: Icon(Icons.add),
                               onPressed: addImageToGallery,
                             ),
@@ -337,7 +411,6 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                     ],
                   ),
                   const SizedBox(height: 8.0),
-                  // Placeholder for gallery, replace with actual images
                   SizedBox(
                     height: 200,
                     child: ListView.builder(
@@ -359,7 +432,6 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-
                                     IconButton(
                                       icon: Icon(Icons.close),
                                       onPressed: () {
