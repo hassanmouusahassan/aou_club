@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import the date format library
+import 'package:intl/intl.dart';
 
 import 'club_home_page.dart' as ClubPage;
 
@@ -10,8 +10,15 @@ class Event {
   Event({required this.name, required this.dateTime});
 }
 
+class Club {
+  String name;
+  String? description; // Making description nullable
+
+  Club({required this.name, this.description});
+}
+
 class ClubInfoPage extends StatefulWidget {
-  ClubPage.Club club; // Use the alias to disambiguate
+  ClubPage.Club club;
   final bool isAdmin;
 
   ClubInfoPage({Key? key, required this.club, required this.isAdmin}) : super(key: key);
@@ -22,7 +29,7 @@ class ClubInfoPage extends StatefulWidget {
 
 class _ClubInfoPageState extends State<ClubInfoPage> {
   List<Event> events = [
-    Event(name: 'Event 1', dateTime: DateTime.now()), // Initial event with current date and time
+    Event(name: 'Event 1', dateTime: DateTime.now()),
   ];
   List<String> galleryImages = List.generate(1, (index) => 'https://via.placeholder.com/150');
 
@@ -61,9 +68,11 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
             ),
             TextButton(
               onPressed: () {
-                setState(() {
-                  widget.club.description = aboutClubController.text;
-                });
+                if (widget.club.description != null) {
+                  setState(() {
+                    widget.club.description = aboutClubController.text;
+                  });
+                }
 
                 // Save changes to persistent storage or backend here if needed
 
@@ -121,81 +130,121 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
         DateTime selectedDate = DateTime.now();
         TimeOfDay selectedTime = TimeOfDay.now();
 
-        return AlertDialog(
-          title: Text('Add Event'),
-          content: Column(
-            children: [
-              TextField(
-                controller: upcomingEventsController,
-                decoration: InputDecoration(hintText: 'Enter new event name'),
-              ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () async {
-                  // Show date picker
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: selectedDate,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2101),
-                  );
-
-                  if (pickedDate != null && pickedDate != selectedDate) {
-                    setState(() {
-                      selectedDate = pickedDate;
-                    });
-                  }
-                },
-                child: Text('Pick Date'),
-              ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () async {
-                  // Show time picker
-                  TimeOfDay? pickedTime = await showTimePicker(
-                    context: context,
-                    initialTime: selectedTime,
-                  );
-
-                  if (pickedTime != null && pickedTime != selectedTime) {
-                    setState(() {
-                      selectedTime = pickedTime;
-                    });
-                  }
-                },
-                child: Text('Pick Time'),
-              ),
-            ],
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  events.add(Event(
-                    name: upcomingEventsController.text,
-                    dateTime: DateTime(
-                      selectedDate.year,
-                      selectedDate.month,
-                      selectedDate.day,
-                      selectedTime.hour,
-                      selectedTime.minute,
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(16.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10.0,
+                    offset: const Offset(0.0, 10.0),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Add Event',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ));
-                });
+                  ),
+                  SizedBox(height: 16.0),
+                  TextField(
+                    controller: upcomingEventsController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter new event name',
+                      labelText: 'Event Name',
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Show date picker
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2101),
+                      );
 
-                // Save changes to persistent storage or backend here if needed
+                      if (pickedDate != null && pickedDate != selectedDate) {
+                        setState(() {
+                          selectedDate = pickedDate;
+                        });
+                      }
+                    },
+                    child: Text('Pick Date'),
+                  ),
+                  SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Show time picker
+                      TimeOfDay? pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime: selectedTime,
+                      );
 
-                Navigator.of(context).pop();
-              },
-              child: Text('Save'),
+                      if (pickedTime != null && pickedTime != selectedTime) {
+                        setState(() {
+                          selectedTime = pickedTime;
+                        });
+                      }
+                    },
+                    child: Text('Pick Time'),
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      SizedBox(width: 8.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            events.add(
+                              Event(
+                                name: upcomingEventsController.text,
+                                dateTime: DateTime(
+                                  selectedDate.year,
+                                  selectedDate.month,
+                                  selectedDate.day,
+                                  selectedTime.hour,
+                                  selectedTime.minute,
+                                ),
+                              ),
+                            );
+                          });
+
+                          // Save changes to persistent storage or backend here if needed
+
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Save'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         );
       },
     );
@@ -325,7 +374,7 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    widget.club.description,
+                    widget.club.description ?? "", // Check if description is null
                     style: const TextStyle(fontSize: 16.0, height: 1.5),
                   ),
                   const SizedBox(height: 20.0),
@@ -350,41 +399,46 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                   ),
                   const SizedBox(height: 8.0),
                   SizedBox(
-                    height: 100,
+                    height: 200,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: events.length,
                       itemBuilder: (context, index) {
-                        return Card(
-                          child: Stack(
-                            alignment: Alignment.topRight,
-                            children: [
-                              SizedBox(
-                                width: 180,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(events[index].name),
-                                    Text(
-                                      DateFormat('MMMM d, y H:mm a').format(events[index].dateTime),
-                                      style: TextStyle(fontSize: 12.0, color: Colors.grey),
-                                    ),
-                                  ],
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Card(
+                            elevation: 4.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Container(
+                              width: 200,
+                              child: ListTile(
+                                title: Text(
+                                  events[index].name,
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
+                                subtitle: Text(
+                                  DateFormat('MMMM d, y H:mm a').format(events[index].dateTime),
+                                  style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                                ),
+                                contentPadding: EdgeInsets.all(16.0),
+                                onTap: () {
+                                  // Handle tapping on the event if needed
+                                },
+                                trailing: widget.isAdmin
+                                    ? IconButton(
+                                  icon: Icon(Icons.close),
+                                  onPressed: () {
+                                    deleteEvent(index);
+                                  },
+                                )
+                                    : null,
                               ),
-                              if (widget.isAdmin)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(Icons.close),
-                                      onPressed: () {
-                                        deleteEvent(index);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                            ],
+                            ),
                           ),
                         );
                       },
@@ -417,30 +471,35 @@ class _ClubInfoPageState extends State<ClubInfoPage> {
                       scrollDirection: Axis.horizontal,
                       itemCount: galleryImages.length,
                       itemBuilder: (context, index) {
-                        return Card(
-                          child: Stack(
-                            alignment: Alignment.topRight,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Image.network(
-                                  galleryImages[index],
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              if (widget.isAdmin)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Card(
+                            elevation: 4.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Container(
+                              width: 200,
+                              child: Stack(
+                                alignment: Alignment.topRight,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Image.network(
+                                      galleryImages[index],
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  if (widget.isAdmin)
                                     IconButton(
                                       icon: Icon(Icons.close),
                                       onPressed: () {
                                         deleteImage(index);
                                       },
                                     ),
-                                  ],
-                                ),
-                            ],
+                                ],
+                              ),
+                            ),
                           ),
                         );
                       },
