@@ -1,19 +1,17 @@
-import 'package:aou_club/screens/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:aou_club/screens/chat_page.dart'; // Replace with actual import
-import 'package:aou_club/screens/news_announcement_page.dart'; // Replace with actual import
-import 'package:aou_club/screens/settings_page.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'clubs_info_pages.dart'; // Replace with actual import
-// club_home_page.dart
-import 'package:flutter/material.dart';
+import 'package:aou_club/screens/login_page.dart';
+import 'package:aou_club/screens/chat_page.dart';
+import 'package:aou_club/screens/news_announcement_page.dart';
+import 'package:aou_club/screens/settings_page.dart';
+import 'package:aou_club/screens/clubs_info_pages.dart';
 
 class Club {
   final String name;
   final String admin;
-  late final String imageUrl;
-  late final String description; // Added description field
+  final String imageUrl;
+  late final String description;
 
   Club({
     required this.name,
@@ -21,84 +19,61 @@ class Club {
     required this.imageUrl,
     required this.description,
   });
+
+  factory Club.fromSnapshot(Map<dynamic, dynamic> snapshot) {
+    return Club(
+      name: snapshot['name'] as String,
+      admin: snapshot['admin'] as String,
+      imageUrl: snapshot['imageUrl'] as String,
+      description: snapshot['description'] as String,
+    );
+  }
 }
-// Updated club data with description
-List<Club> clubs = [
-  Club(
-    name: "Sports Club",
-    admin: "John Doe",
-    imageUrl: "assets/sport.jpeg",
-    description: "Description for Sports Club",
-  ),
-  Club(
-    name: "Dance Club",
-    admin: "Jane Doe",
-    imageUrl: "assets/dancing.jpg",
-    description: "Description for Dance Club",
-  ),
-  Club(
-    name: "Music Club",
-    admin: "Jane Doe",
-    imageUrl: "assets/music.jpeg",
-    description: "Description for Music Club",
-  ),
-  Club(
-    name: "Omar Club",
-    admin: "Jane Doe",
-    imageUrl: "assets/omar.png",
-    description: "Description for Omar Club",
-  ),
-  Club(
-    name: "Hassan Club",
-    admin: "Jane Doe",
-    imageUrl: "assets/hassan.jpeg",
-    description: "Description for Hassan Club",
-  ),
-  Club(
-    name: "Computer Club",
-    admin: "Jane Doe",
-    imageUrl: "assets/computer.jpeg",
-    description: "Description for Computer Club",
-  ),
-  Club(
-    name: "Music Club",
-    admin: "Jane Doe",
-    imageUrl: "assets/music.jpeg",
-    description: "Description for Music Club",
-  ),
-  Club(
-    name: "AI Club",
-    admin: "Jane Doe",
-    imageUrl: "assets/ai.jpeg",
-    description: "Description for AI Club",
-  ),
-];
 
 class ClubsPage extends StatefulWidget {
-  const ClubsPage({super.key});
+  const ClubsPage({Key? key}) : super(key: key);
 
   @override
-  _ClubsPageState createState() => _ClubsPageState();
+  State<ClubsPage> createState() => _ClubsPageState();
 }
 
 class _ClubsPageState extends State<ClubsPage> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
+  List<Club> _clubs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchClubs();
+  }
+
+  void _fetchClubs() {
+    DatabaseReference ref = FirebaseDatabase.instance.ref('clubs');
+    ref.onValue.listen((DatabaseEvent event) {
+      final clubsData = Map<String, dynamic>.from(event.snapshot.value as Map);
+      final List<Club> loadedClubs = clubsData.entries.map((e) {
+        return Club.fromSnapshot(Map<String, dynamic>.from(e.value));
+      }).toList();
+      setState(() {
+        _clubs = loadedClubs;
+      });
+    });
+  }
 
   void _onItemTapped(int index) {
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    setState(() {
+      _selectedIndex = index;
+    });
+    _pageController.jumpToPage(index);
   }
 
   String _getTitle(int index) {
     switch (index) {
-    case 0:
-    return 'AOU CLUBS';
-    case 1:
-      return 'News';
+      case 0:
+        return 'AOU CLUBS';
+      case 1:
+        return 'News';
       case 2:
         return 'Chat';
       case 3:
@@ -107,48 +82,57 @@ class _ClubsPageState extends State<ClubsPage> {
         return '';
     }
   }
-  void confirmLogout() {
-    final snackBar = SnackBar(
-      content: Text('Do you really want to log out?'),
-      action: SnackBarAction(
-        label: 'Logout',
-        onPressed: () {
 
-          _logout();
-        },
-      ),
-      duration: Duration(seconds: 5),
+  void confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Log Out'),
+          content: const Text('Do you really want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Log Out'),
+              onPressed: _logout,
+            ),
+          ],
+        );
+      },
     );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _logout() async {
-
-// Implement your logout functionality here
-// For example, clear shared preferences and navigate to the login screen
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage())); // Replace with your login screen
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+        appBar: AppBar(
         title: Center(
-          child: Text(
-            _getTitle(_selectedIndex),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+        child: Text(
+        _getTitle(_selectedIndex),
+    style: const TextStyle(fontWeight: FontWeight.bold),
+    ),
+    ),
+    backgroundColor: Colors.black26,
+    actions: _selectedIndex == 3
+    ? [
+    IconButton(
+      icon: const Icon(Icons.exit_to_app, color: Colors.red),
+      onPressed: confirmLogout,
+    ),
+    ]
+        : null,
         ),
-        backgroundColor: Colors.black26,
-        actions: _selectedIndex == 3 ? [
-          IconButton(
-            icon: const Icon(Icons.exit_to_app, color: Colors.red),
-            onPressed: confirmLogout,
-          ),
-        ] : null,
-      ),
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
@@ -158,9 +142,9 @@ class _ClubsPageState extends State<ClubsPage> {
         },
         children: [
           _buildClubsList(),
-          const NewsPage(), // Replace with your News Widget
-          const ChatPage(), // Replace with your Chat Widget
-          SettingsPage(), // Replace with your Settings Widget
+          NewsPage(), // Your News Widget
+          ChatPage(), // Your Chat Widget
+          SettingsPage(), // Your Settings Widget
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -191,26 +175,24 @@ class _ClubsPageState extends State<ClubsPage> {
 
   Widget _buildClubsList() {
     return ListView.builder(
-      itemCount: clubs.length,
+      itemCount: _clubs.length,
       itemBuilder: (context, index) {
+        final club = _clubs[index];
         return GestureDetector(
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ClubInfoPage(club: clubs[index], isAdmin: true,),
+                builder: (context) => ClubInfoPage(club: club, isAdmin: false),
               ),
             );
-
           },
-          child: ClubCard(club: clubs[index]),
+          child: ClubCard(club: club),
         );
       },
     );
   }
 }
-
-
 
 class ClubCard extends StatelessWidget {
   final Club club;
@@ -223,7 +205,9 @@ class ClubCard extends StatelessWidget {
       elevation: 5.0,
       margin: const EdgeInsets.all(10.0),
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
       child: Container(
         height: 200,
         decoration: BoxDecoration(
@@ -231,7 +215,8 @@ class ClubCard extends StatelessWidget {
             fit: BoxFit.cover,
             image: AssetImage(club.imageUrl),
             colorFilter: ColorFilter.mode(
-                Colors.black.withOpacity(0.3), BlendMode.darken),
+              Colors.black.withOpacity(0.3), BlendMode.darken,
+            ),
           ),
         ),
         child: Padding(
@@ -252,6 +237,10 @@ class ClubCard extends StatelessWidget {
                 'Admin: ${club.admin}',
                 style: const TextStyle(color: Colors.white),
               ),
+             // Text(
+               // club.description,
+                //style: const TextStyle(color: Colors.white70),
+              //),
             ],
           ),
         ),
@@ -259,3 +248,4 @@ class ClubCard extends StatelessWidget {
     );
   }
 }
+
