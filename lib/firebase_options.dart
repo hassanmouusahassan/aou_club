@@ -54,10 +54,10 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDC-RGIaOxA9rWKFZsfBmNkXUjV04F-Yiw',
-    appId: '1:299969906157:android:3b930df1e8f4236ede13e4',
-    messagingSenderId: '299969906157',
-    projectId: 'aou-clubs',
+    apiKey: 'AIzaSyCRiCm7l3eqBXNXG4XrEglXiMdIVuuAHGo',
+    appId: '1:674025303011:android:b82a9bdf765cb672244ed6',
+    messagingSenderId: '674025303011',
+    projectId: 'aou-clubs-ccbdd',
     storageBucket: 'aou-clubs.appspot.com',
   );
 

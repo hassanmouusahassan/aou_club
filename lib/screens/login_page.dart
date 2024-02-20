@@ -20,28 +20,11 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _login(String email, String password, BuildContext context) async {
     try {
+      // Using Firebase for authentication
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       await saveLoginStatus(true);
-
-      // Use custom page transition animation
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const ClubsPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset.zero;
-            const curve = Curves.easeInOutCirc;
-
-            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            var offsetAnimation = animation.drive(tween);
-
-            return SlideTransition(position: offsetAnimation, child: child);
-          },
-        ),
-      );
+      _navigateToHomePage(context);
     } catch (e) {
-      print('Login Error: $e');
       // Show error message in a snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -60,28 +43,32 @@ class _LoginPageState extends State<LoginPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     if (isLoggedIn) {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const ClubsPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset.zero;
-            const curve = Curves.easeInOutCirc;
-
-            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            var offsetAnimation = animation.drive(tween);
-
-            return SlideTransition(position: offsetAnimation, child: child);
-          },
-        ),
-      );
+      _navigateToHomePage(context);
     }
   }
 
   Future<void> saveLoginStatus(bool isLoggedIn) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', isLoggedIn);
+  }
+
+  void _navigateToHomePage(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const ClubsPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOutCirc;
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
+    );
   }
 
   @override
@@ -91,7 +78,6 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Gradient Animation
           AnimatedContainer(
             duration: Duration(seconds: 2),
             decoration: BoxDecoration(
@@ -100,14 +86,13 @@ class _LoginPageState extends State<LoginPage> {
                 end: Alignment.bottomRight,
                 stops: [0.1, 0.5, 0.9],
                 colors: [
-                  Color(0xFF1E1E1E), // Dark Gray
-                  Color(0xFF333333), // Very Dark Gray
-                  Color(0xFF000000), // Black
+                  Color(0xFF1E1E1E),
+                  Color(0xFF333333),
+                  Color(0xFF000000),
                 ],
               ),
             ),
           ),
-
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -165,7 +150,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Additional options like 'Forgot Password?' or 'Sign Up' can be added here.
                     ],
                   ),
                 ),

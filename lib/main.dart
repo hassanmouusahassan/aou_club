@@ -13,12 +13,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: const FirebaseOptions(
-      apiKey: "AIzaSyDC-RGIaOxA9rWKFZsfBmNkXUjV04F-Yiw",
+      apiKey: "AIzaSyCRiCm7l3eqBXNXG4XrEglXiMdIVuuAHGo",
       authDomain: "aou-clubs.firebaseapp.com",
-      projectId: "aou-clubs",
+      projectId: "aou-clubs-ccbdd",
       storageBucket: "aou-clubs.appspot.com",
-      messagingSenderId: "299969906157",
-      appId: "1:299969906157:android:3b930df1e8f4236ede13e4",
+      messagingSenderId: "674025303011",
+      appId: "1:674025303011:android:b82a9bdf765cb672244ed6",
     ),
   );
 
