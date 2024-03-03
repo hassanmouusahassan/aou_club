@@ -6,29 +6,7 @@ import 'package:aou_club/screens/chat_page.dart';
 import 'package:aou_club/screens/news_announcement_page.dart';
 import 'package:aou_club/screens/settings_page.dart';
 import 'package:aou_club/screens/clubs_info_pages.dart';
-
-class Club {
-  final String name;
-  final String admin;
-  final String imageUrl;
-  late final String description;
-
-  Club({
-    required this.name,
-    required this.admin,
-    required this.imageUrl,
-    required this.description,
-  });
-
-  factory Club.fromSnapshot(Map<dynamic, dynamic> snapshot) {
-    return Club(
-      name: snapshot['name'] as String,
-      admin: snapshot['admin'] as String,
-      imageUrl: snapshot['imageUrl'] as String,
-      description: snapshot['description'] as String,
-    );
-  }
-}
+import 'package:aou_club/screens/home_admin.dart';
 
 class ClubsPage extends StatefulWidget {
   const ClubsPage({Key? key}) : super(key: key);
@@ -40,26 +18,6 @@ class ClubsPage extends StatefulWidget {
 class _ClubsPageState extends State<ClubsPage> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-  List<Club> _clubs = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchClubs();
-  }
-
-  void _fetchClubs() {
-    DatabaseReference ref = FirebaseDatabase.instance.ref('clubs');
-    ref.onValue.listen((DatabaseEvent event) {
-      final clubsData = Map<String, dynamic>.from(event.snapshot.value as Map);
-      final List<Club> loadedClubs = clubsData.entries.map((e) {
-        return Club.fromSnapshot(Map<String, dynamic>.from(e.value));
-      }).toList();
-      setState(() {
-        _clubs = loadedClubs;
-      });
-    });
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -116,23 +74,23 @@ class _ClubsPageState extends State<ClubsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: Center(
-        child: Text(
-        _getTitle(_selectedIndex),
-    style: const TextStyle(fontWeight: FontWeight.bold),
-    ),
-    ),
-    backgroundColor: Colors.black26,
-    actions: _selectedIndex == 3
-    ? [
-    IconButton(
-      icon: const Icon(Icons.exit_to_app, color: Colors.red),
-      onPressed: confirmLogout,
-    ),
-    ]
-        : null,
+          child: Text(
+            _getTitle(_selectedIndex),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
+        backgroundColor: Colors.black26,
+        actions: _selectedIndex == 3
+            ? [
+          IconButton(
+            icon: const Icon(Icons.exit_to_app, color: Colors.red),
+            onPressed: confirmLogout,
+          ),
+        ]
+            : null,
+      ),
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
@@ -141,7 +99,33 @@ class _ClubsPageState extends State<ClubsPage> {
           });
         },
         children: [
-          _buildClubsList(),
+          StreamBuilder(
+            stream: FirebaseDatabase.instance.ref('clubs').onValue,
+            builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+              if (snapshot.hasData && !snapshot.hasError && snapshot.data!.snapshot.value != null) {
+                Map clubsData = snapshot.data!.snapshot.value as Map;
+                List clubList = clubsData.entries.map((e) => {...e.value, 'key': e.key}).toList();
+
+                return ListView.builder(
+                  itemCount: clubList.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        // Navigate to club info page with specific club details
+                      },
+                      child: ClubCard(
+                        imageUrl: clubList[index]['imageUrl'] ?? '',
+                        name: clubList[index]['name'] ?? '',
+                        admin: clubList[index]['admin'] ?? '',
+                      ),
+                    );
+                  },
+                );
+              } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
           NewsPage(), // Your News Widget
           ChatPage(), // Your Chat Widget
           SettingsPage(), // Your Settings Widget
@@ -170,34 +154,32 @@ class _ClubsPageState extends State<ClubsPage> {
         selectedItemColor: Colors.deepPurple,
         onTap: _onItemTapped,
       ),
-    );
-  }
-
-  Widget _buildClubsList() {
-    return ListView.builder(
-      itemCount: _clubs.length,
-      itemBuilder: (context, index) {
-        final club = _clubs[index];
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ClubInfoPage(club: club, isAdmin: false),
-              ),
-            );
-          },
-          child: ClubCard(club: club),
-        );
-      },
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to the AdminPage
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AdminPage()),
+          );
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.deepPurple,
+      ),
     );
   }
 }
 
 class ClubCard extends StatelessWidget {
-  final Club club;
+  final String imageUrl;
+  final String name;
+  final String admin;
 
-  const ClubCard({Key? key, required this.club}) : super(key: key);
+  const ClubCard({
+    Key? key,
+    required this.imageUrl,
+    required this.name,
+    required this.admin,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +195,7 @@ class ClubCard extends StatelessWidget {
         decoration: BoxDecoration(
           image: DecorationImage(
             fit: BoxFit.cover,
-            image: AssetImage(club.imageUrl),
+            image: NetworkImage(imageUrl),
             colorFilter: ColorFilter.mode(
               Colors.black.withOpacity(0.3), BlendMode.darken,
             ),
@@ -226,7 +208,7 @@ class ClubCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                club.name,
+                name,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -234,13 +216,9 @@ class ClubCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'Admin: ${club.admin}',
+                'Admin: $admin',
                 style: const TextStyle(color: Colors.white),
               ),
-             // Text(
-               // club.description,
-                //style: const TextStyle(color: Colors.white70),
-              //),
             ],
           ),
         ),
@@ -248,4 +226,3 @@ class ClubCard extends StatelessWidget {
     );
   }
 }
-
