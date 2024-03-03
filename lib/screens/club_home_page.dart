@@ -112,6 +112,17 @@ class _ClubsPageState extends State<ClubsPage> {
                     return GestureDetector(
                       onTap: () {
                         // Navigate to club info page with specific club details
+                        Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                        builder: (context) => ClubInfoPage(
+                    imageUrl: clubList[index]['imageUrl'] ?? '',
+                  name: clubList[index]['name'] ?? 'No Name',
+                    admin: clubList[index]['admin'] ?? 'No Admin',
+                  ),
+          ),
+    );
+
                       },
                       child: ClubCard(
                         imageUrl: clubList[index]['imageUrl'] ?? '',

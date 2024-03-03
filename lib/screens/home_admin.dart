@@ -17,73 +17,65 @@ class _AdminPageState extends State<AdminPage> {
   final _nameController = TextEditingController();
   final _adminController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _imageUrlController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
   bool _isLoading = false;
+  final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      _selectedImage = File(pickedFile.path);
+      setState(() => _selectedImage = File(pickedFile.path));
     }
   }
 
-  Future<void> _uploadImage() async {
-    if (_selectedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('No image selected')));
-      return;
-    }
+  Future<String> _uploadImage(File image) async {
     setState(() => _isLoading = true);
-    String url = "https://api.imgbb.com/1/upload?key=5732129137e8541dd24d87d509239fff"; // Replace YOUR_API_KEY with your actual ImgBB API key
-    var request = http.MultipartRequest('POST', Uri.parse(url));
-    request.files.add(await http.MultipartFile.fromPath('image', _selectedImage!.path));
+    var uri = Uri.parse("https://api.imgbb.com/1/upload");
+    var request = http.MultipartRequest("POST", uri)
+      ..fields['key'] = '5732129137e8541dd24d87d509239fff'  // Replace with your ImgBB API key
+      ..files.add(await http.MultipartFile.fromPath('image', image.path));
     var response = await request.send();
 
     if (response.statusCode == 200) {
-      String res = await response.stream.bytesToString();
-      var jsonResponse = jsonDecode(res);
-      _imageUrlController.text = jsonResponse['data']['display_url'];
-      _submitClub();
-    } else {
-      print('Failed to upload image.');
+      String responseData = await response.stream.bytesToString();
+      var decoded = json.decode(responseData);
       setState(() => _isLoading = false);
+      return decoded['data']['url'];
+    } else {
+      setState(() => _isLoading = false);
+      throw Exception('Failed to upload image');
     }
   }
 
-  void _submitClub() async {
-    if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill all fields')));
-      setState(() => _isLoading = false);
+  Future<void> _submitClub() async {
+    if (!_formKey.currentState!.validate() || _selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please complete the form and select an image.')));
       return;
     }
 
-    final String clubName = _nameController.text.trim();
-    final String adminName = _adminController.text.trim();
-    final String description = _descriptionController.text.trim();
-    final String imageUrl = _imageUrlController.text.trim();
-
     try {
-      final String clubKey = clubName.replaceAll(' ', '_').toLowerCase();
-      DatabaseReference dbRef = FirebaseDatabase.instance.ref('clubs/$clubKey');
+      final imageUrl = await _uploadImage(_selectedImage!);
+      final DatabaseReference dbRef = FirebaseDatabase.instance.ref('clubs').child(_nameController.text.trim());
       await dbRef.set({
-        'name': clubName,
-        'admin': adminName,
-        'description': description,
+        'name': _nameController.text.trim(),
+        'admin': _adminController.text.trim(),
+        'description': _descriptionController.text.trim(),
         'imageUrl': imageUrl,
       });
-
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Club added successfully!')));
+      _resetForm();
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error submitting club: $error')));
-    } finally {
-      _nameController.clear();
-      _adminController.clear();
-      _descriptionController.clear();
-      _imageUrlController.clear();
-      _selectedImage = null;
-      setState(() => _isLoading = false);
+      _resetForm();
     }
+  }
+
+  void _resetForm() {
+    _nameController.clear();
+    _adminController.clear();
+    _descriptionController.clear();
+    _selectedImage = null;
+    setState(() => _isLoading = false);
   }
 
   @override
@@ -91,36 +83,57 @@ class _AdminPageState extends State<AdminPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Page'),
+        backgroundColor: Colors.deepPurple,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              if (_isLoading) CircularProgressIndicator(),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: const Text('Pick Image'),
+              if (_isLoading) const LinearProgressIndicator(),
+              GestureDetector(
+                onTap: _pickImage,
+                child: _selectedImage != null
+                    ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.file(_selectedImage!, fit: BoxFit.cover, height: 200),
+                )
+                    : Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.camera_alt, color: Colors.grey[800], size: 50),
+                ),
               ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Club Name'),
+                decoration: const InputDecoration(labelText: 'Club Name', border: OutlineInputBorder()),
                 validator: (value) => value == null || value.isEmpty ? 'Please enter the club name' : null,
               ),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _adminController,
-                decoration: const InputDecoration(labelText: 'Admin'),
+                decoration: const InputDecoration(labelText: 'Admin', border: OutlineInputBorder()),
                 validator: (value) => value == null || value.isEmpty ? 'Please enter the admin name' : null,
               ),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
                 validator: (value) => value == null || value.isEmpty ? 'Please enter a description' : null,
               ),
+              const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _uploadImage, // Initiates the image upload and club submission process
-                child: const Text('Submit '),
+                onPressed: _isLoading ? null : _submitClub,
+                child: const Text('Submit Club'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.deepPurple,
+                ),
               ),
             ],
           ),
