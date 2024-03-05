@@ -111,7 +111,7 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isAddView ? 'Add Club' : 'View Clubs'),
+        title: Text(_isAddView ?'View Clubs' :  'Add Club' ),
         actions: [
           IconButton(
             icon: Icon(_isAddView ? Icons.add :  Icons.view_list),
@@ -139,8 +139,18 @@ class _AdminPageState extends State<AdminPage> {
                   ? Image.file(_selectedImage!, fit: BoxFit.fill, height: 200)
                   : Container(
                 height: 200,
+                width: double.infinity,
                 decoration: BoxDecoration(color: Colors.grey[200]),
-                child: Icon(Icons.camera_alt, color: Colors.grey[800], size: 50),
+                child: Padding(
+                  padding: const EdgeInsets.all(50.0),
+                  child: Column(
+                    children: [
+                      Text("Select image here 👇",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.grey[800]),),
+                      SizedBox(height: 20,),
+                      Icon(Icons.camera_alt, color: Colors.grey[800], size: 50),
+                    ],
+                  ),
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -276,12 +286,14 @@ class _ClubCardState extends State<ClubCard> {
             ),
             if (_showActions) Positioned(
               right: 0,
+
               child: Row(
                 children: [
                   IconButton(
                     icon: Icon(Icons.edit, color: Colors.blue),
                     onPressed: () => widget.onEdit(widget.club['key']),
                   ),
+                  SizedBox(width: 70,),
                   IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
                     onPressed: () => widget.onDelete(widget.club['key']),
@@ -305,16 +317,6 @@ class EditClubPage extends StatefulWidget {
   _EditClubPageState createState() => _EditClubPageState();
 }
 
-class EditclubPage extends StatefulWidget {
-
-  final String clubKey;
-  final Map<String, dynamic> clubInfo;
-
-  const EditclubPage({Key? key, required this.clubKey, required this.clubInfo}) : super(key: key);
-
-  @override
-  _EditClubPageState createState() => _EditClubPageState();
-}
 
 class _EditClubPageState extends State<EditClubPage> {
   final _formKey = GlobalKey<FormState>();
@@ -406,6 +408,13 @@ class _EditClubPageState extends State<EditClubPage> {
           key: _formKey,
           child: Column(
             children: [
+              if (_isLoading) // Check if it's loading
+                Container(
+
+                  child: Center(
+                    child: CircularProgressIndicator(), // Show progress indicator
+                  ),
+                ),
               GestureDetector(
                 onTap: _pickImage,
                 child: _newImage != null
@@ -418,6 +427,7 @@ class _EditClubPageState extends State<EditClubPage> {
                   child: Icon(Icons.camera_alt, color: Colors.grey[800], size: 50),
                 )),
               ),
+
               SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
@@ -437,6 +447,8 @@ class _EditClubPageState extends State<EditClubPage> {
                 validator: (value) => value?.isEmpty ?? true ? 'Please enter a description' : null,
               ),
               SizedBox(height: 20),
+
+
             ],
           ),
         ),
