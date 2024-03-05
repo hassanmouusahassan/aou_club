@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_database/firebase_database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'login_page.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
@@ -18,6 +21,9 @@ class _AdminPageState extends State<AdminPage> {
   final _nameController = TextEditingController();
   final _adminController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref('clubs');
@@ -28,6 +34,35 @@ class _AdminPageState extends State<AdminPage> {
   void initState() {
     super.initState();
     _fetchClubs();
+  }
+  void confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Log Out'),
+          content: const Text('Do you really want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Log Out'),
+              onPressed: _logout,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
   Future<void> _fetchClubs() async {
@@ -83,6 +118,8 @@ class _AdminPageState extends State<AdminPage> {
         'admin': _adminController.text,
         'description': _descriptionController.text,
         'imageUrl': imageUrl,
+        'adminEmail': _emailController.text,
+        'password':_passwordController.text,
       };
 
       await _dbRef.push().set(clubInfo);
@@ -112,10 +149,21 @@ class _AdminPageState extends State<AdminPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isAddView ?'View Clubs' :  'Add Club' ),
+        automaticallyImplyLeading: false,
         actions: [
-          IconButton(
-            icon: Icon(_isAddView ? Icons.add :  Icons.view_list),
-            onPressed: () => setState(() => _isAddView = !_isAddView), // Toggle view
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(_isAddView ? Icons.add :  Icons.view_list),
+                onPressed: () => setState(() => _isAddView = !_isAddView), // Toggle view
+              ),
+              if(_isAddView)
+                IconButton(
+                  icon: const Icon(Icons.exit_to_app, color: Colors.red),
+                  onPressed: confirmLogout,
+                ),
+
+            ],
           ),
         ],
       ),
@@ -145,7 +193,7 @@ class _AdminPageState extends State<AdminPage> {
                   padding: const EdgeInsets.all(50.0),
                   child: Column(
                     children: [
-                      Text("Select image here 👇",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.grey[800]),),
+                      Text("Select image here 👇", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[800])),
                       SizedBox(height: 20,),
                       Icon(Icons.camera_alt, color: Colors.grey[800], size: 50),
                     ],
@@ -161,16 +209,30 @@ class _AdminPageState extends State<AdminPage> {
             ),
             SizedBox(height: 10),
             TextFormField(
+              controller: _descriptionController,
+              decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+              validator: (value) => value == null || value.isEmpty ? 'Please enter a description' : null,
+            ),
+            SizedBox(height: 10),
+            TextFormField(
               controller: _adminController,
               decoration: InputDecoration(labelText: 'Admin', border: OutlineInputBorder()),
               validator: (value) => value == null || value.isEmpty ? 'Please enter the admin name' : null,
             ),
             SizedBox(height: 10),
             TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
-              validator: (value) => value == null || value.isEmpty ? 'Please enter a description' : null,
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Admin Email', border: OutlineInputBorder()),
+              validator: (value) => value == null || value.isEmpty ? 'Please enter the admin email' : null,
             ),
+            SizedBox(height: 10),
+            TextFormField(
+              controller: _passwordController,
+              obscureText: true, // This will obscure the text as it's a password
+              decoration: InputDecoration(labelText: 'Admin Password', border: OutlineInputBorder()),
+              validator: (value) => value == null || value.isEmpty ? 'Please enter the admin password' : null,
+            ),
+
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _isLoading ? null : _submitClub,
@@ -323,6 +385,8 @@ class _EditClubPageState extends State<EditClubPage> {
   late TextEditingController _nameController;
   late TextEditingController _adminController;
   late TextEditingController _descriptionController;
+  late TextEditingController _emailController ;
+  late TextEditingController _passwordController ;
   String? _imageUrl; // Existing image URL
   File? _newImage; // New image selected by the user
   final ImagePicker _picker = ImagePicker();
@@ -334,6 +398,8 @@ class _EditClubPageState extends State<EditClubPage> {
     _nameController = TextEditingController(text: widget.clubInfo['name']);
     _adminController = TextEditingController(text: widget.clubInfo['admin']);
     _descriptionController = TextEditingController(text: widget.clubInfo['description']);
+    _emailController = TextEditingController(text: widget.clubInfo['adminEmail']);
+    _passwordController = TextEditingController(text: widget.clubInfo['password']);
     _imageUrl = widget.clubInfo['imageUrl'];
   }
 
@@ -374,6 +440,8 @@ class _EditClubPageState extends State<EditClubPage> {
         'name': _nameController.text.trim(),
         'admin': _adminController.text.trim(),
         'description': _descriptionController.text.trim(),
+        'adminEmail':_emailController.text.trim(),
+        'password':_passwordController.text.trim(),
         'imageUrl': imageUrl,
       };
 
@@ -436,15 +504,27 @@ class _EditClubPageState extends State<EditClubPage> {
               ),
               SizedBox(height: 10),
               TextFormField(
+                controller: _descriptionController,
+                decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+                validator: (value) => value?.isEmpty ?? true ? 'Please enter a description' : null,
+              ),
+              SizedBox(height: 10),
+              TextFormField(
                 controller: _adminController,
                 decoration: InputDecoration(labelText: 'Admin', border: OutlineInputBorder()),
                 validator: (value) => value?.isEmpty ?? true ? 'Please enter the admin name' : null,
               ),
               SizedBox(height: 10),
               TextFormField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
-                validator: (value) => value?.isEmpty ?? true ? 'Please enter a description' : null,
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'admin email', border: OutlineInputBorder()),
+                validator: (value) => value?.isEmpty ?? true ? 'Please enter the admin email' : null,
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(labelText: 'admin password', border: OutlineInputBorder()),
+                validator: (value) => value?.isEmpty ?? true ? 'Please enter a password' : null,
               ),
               SizedBox(height: 20),
 

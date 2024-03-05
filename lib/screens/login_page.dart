@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// Import AdminPage and ClubsPage
+import 'package:aou_club/screens/home_admin.dart';
 import 'package:aou_club/screens/club_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routeName = '/login';
 
-  LoginPage({Key? key}) : super(key: key);
-
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -18,63 +18,68 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
   bool _isPasswordVisible = false;
 
-  Future<void> _login(String email, String password, BuildContext context) async {
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+  }
+
+  Future<void> _login(String email, String password) async {
     try {
-      // Using Firebase for authentication
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      String userEmail = userCredential.user?.email ?? "";
       await saveLoginStatus(true);
-      _navigateToHomePage(context);
+
+      // Check if user email is "hassan@gmail.com"
+      if (userEmail == "hassan@gmail.com") {
+        _navigateToPage(AdminPage());
+      } else {
+        _navigateToPage(ClubsPage());
+      }
     } catch (e) {
-      // Show error message in a snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             'Invalid email or password. Please try again.',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          duration: Duration(seconds: 3),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Future<void> checkLoginStatus(BuildContext context) async {
+  Future<void> checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     if (isLoggedIn) {
-      _navigateToHomePage(context);
+      // Assuming the user's email is stored and you have access to it here.
+      // You might need to adjust based on your actual app design.
+      String userEmail = prefs.getString('userEmail') ?? "";
+      if (userEmail == "hassan@gmail.com") {
+        _navigateToPage(AdminPage());
+      } else {
+        _navigateToPage(ClubsPage());
+      }
     }
   }
 
   Future<void> saveLoginStatus(bool isLoggedIn) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isLoggedIn', isLoggedIn);
+    await prefs.setBool('isLoggedIn', isLoggedIn);
+    // Save user email for later use (consider security implications)
+    await prefs.setString('userEmail', emailController.text.trim());
   }
 
-  void _navigateToHomePage(BuildContext context) {
+  void _navigateToPage(Widget page) {
     Navigator.pushReplacement(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ClubsPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOutCirc;
-
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          var offsetAnimation = animation.drive(tween);
-
-          return SlideTransition(position: offsetAnimation, child: child);
-        },
-      ),
+      MaterialPageRoute(builder: (context) => page),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    checkLoginStatus(context);
-
     return Scaffold(
       body: Stack(
         children: [
@@ -84,7 +89,6 @@ class _LoginPageState extends State<LoginPage> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                stops: [0.1, 0.5, 0.9],
                 colors: [
                   Color(0xFF1E1E1E),
                   Color(0xFF333333),
@@ -133,11 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                       MaterialButton(
                         minWidth: double.infinity,
                         height: 60,
-                        onPressed: () {
-                          String email = emailController.text.trim();
-                          String password = passwordController.text.trim();
-                          _login(email, password, context);
-                        },
+                        onPressed: () => _login(emailController.text.trim(), passwordController.text.trim()),
                         color: Colors.orange,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         child: const Text(
@@ -180,19 +180,17 @@ class _LoginPageState extends State<LoginPage> {
         TextField(
           controller: controller,
           obscureText: obscureText,
-          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: Colors.grey.shade400),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: Colors.grey.shade800),
             ),
             suffixIcon: icon,
           ),
+          style: const TextStyle(color: Colors.white),
         ),
         const SizedBox(height: 15),
       ],

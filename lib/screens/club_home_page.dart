@@ -81,6 +81,7 @@ class _ClubsPageState extends State<ClubsPage> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.black26,
         actions: _selectedIndex == 3
             ? [
@@ -165,17 +166,7 @@ class _ClubsPageState extends State<ClubsPage> {
         selectedItemColor: Colors.deepPurple,
         onTap: _onItemTapped,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to the AdminPage
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AdminPage()),
-          );
-        },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.deepPurple,
-      ),
+
     );
   }
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:aou_club/screens/profile_page.dart';
-import 'package:aou_club/screens/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:provider/provider.dart';
-import 'package:aou_club/constants/theme_provider.dart'; // Ensure this path is correct
+import 'package:aou_club/constants/theme_provider.dart'; // Make sure this import is correct
+import 'package:aou_club/screens/login_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -14,33 +15,27 @@ class _SettingsPageState extends State<SettingsPage> {
   bool isNotificationsOn = false;
   bool _isThemeOn = true;
 
-  String userName = 'Cov Omar';
-  String userImage = 'assets/omar.png'; // Ensure this path is valid
+  User? user;
+  DatabaseReference? userRef;
+
+  String userName = 'hassan moussa';
+  String userMajor = 'computer science';
+  String userID = '220464';
+  String userProfileImg = 'https://i.ibb.co/9nwYPrC/sarah-jpgayoub-20240304-0001.jpg';
 
   @override
   void initState() {
     super.initState();
+
     loadPreferences();
   }
 
   void loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      userName = prefs.getString('userName') ?? 'Cov Omar';
-      userImage = prefs.getString('userImage') ?? 'assets/omar.png';
       isNotificationsOn = prefs.getBool('isNotificationsOn') ?? true;
       _isThemeOn = prefs.getBool('isThemeOn') ?? false;
     });
-  }
-
-  void updateProfile(String newName, String newImage) async {
-    setState(() {
-      userName = newName;
-      userImage = newImage;
-    });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userName', newName);
-    await prefs.setString('userImage', newImage);
   }
 
   void updateNotificationPreference(bool value) async {
@@ -48,7 +43,7 @@ class _SettingsPageState extends State<SettingsPage> {
       isNotificationsOn = value;
     });
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isNotificationsOn', isNotificationsOn);
+    await prefs.setBool('isNotificationsOn', value);
   }
 
   void updateThemePreference(bool value) async {
@@ -56,60 +51,39 @@ class _SettingsPageState extends State<SettingsPage> {
       _isThemeOn = value;
     });
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isThemeOn', _isThemeOn);
-    Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+    await prefs.setBool('isThemeOn', value);
+    Provider.of<ThemeProvider>(context, listen: false).toggleTheme(value);
   }
 
   void confirmLogout() {
-    final snackBar = SnackBar(
-      content: Text('Do you really want to log out?'),
-      action: SnackBarAction(
-        label: 'Logout',
-        onPressed: () {
-          logout();
-        },
-      ),
-      duration: Duration(seconds: 5),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Logout'),
+          content: Text('Do you really want to log out?'),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text('Logout'),
+              onPressed: logout,
+            ),
+          ],
+        );
+      },
     );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void logout() async {
+    await FirebaseAuth.instance.signOut();
     final prefs = await SharedPreferences.getInstance();
-    prefs.clear(); // Clear all user preferences
-
-    Navigator.pushReplacement(
-      context,
+    await prefs.clear();
+    Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => LoginPage()),
-    );
-  }
-
-  navigateToProfile() {
-    Navigator.of(context)
-        .push(_createRoute())
-        .then((_) => loadPreferences()); // Reload preferences on return
-  }
-
-  Route _createRoute() {
-    return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => ProfilePage(
-      userName: userName,
-      userImage: userImage,
-      onUpdate: updateProfile,
-    ),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    var begin = const Offset(1.0, 0.0);
-    var end =Offset.zero;
-    var curve = Curves.ease;
-    var tween =
-    Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-    var offsetAnimation = animation.drive(tween);
-
-    return SlideTransition(
-      position: offsetAnimation,
-      child: child,
-    );
-    },
+          (route) => false,
     );
   }
 
@@ -117,68 +91,42 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: Column(
-        children: <Widget>[
-          InkWell(
-            onTap: navigateToProfile,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 35.0, horizontal: 16.0),
-              child: Row(
-                children: <Widget>[
-                  CircleAvatar(
-                    backgroundImage: AssetImage(userImage),
-                    radius: 30,
-                  ),
-                  SizedBox(width: 24),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          userName,
-                          style: const TextStyle(
-                            color: Colors.teal,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                        Text(
-                          'AOU Student, ID: 220464',
-                          style: TextStyle(color: Colors.grey[400], fontSize: 15),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios, color: Colors.grey[400]),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                SwitchListTile(
-                  title: const Text('Notifications', style: TextStyle(color: Colors.grey)),
-                  value: isNotificationsOn,
-                  onChanged: (bool value) {
-                    updateNotificationPreference(value);
-                  },
-                  secondary: Icon(isNotificationsOn ? Icons.notifications : Icons.notifications_off_rounded, color: Colors.green),
-                ),
-                SwitchListTile(
-                  title: const Text('Theme Mode', style: TextStyle(color: Colors.grey)),
-                  value: _isThemeOn,
-                  onChanged: (bool value) {
-                    updateThemePreference(value);
-                  },
-                  secondary: Icon(_isThemeOn ? Icons.light_mode : Icons.dark_mode, color: Colors.green),
-                ),
-// The 'Logout' list tile has been removed as the logout functionality is now in the AppBar
-              ],
-            ),
-          ),
-        ],
+        body: ListView(
+            children: [
+              userProfileImg.isNotEmpty
+                  ? CircleAvatar(backgroundImage: NetworkImage(userProfileImg), radius: 80,)
+                  : CircleAvatar(child: Icon(Icons.person)),
+
+    Card(
+    margin: EdgeInsets.all(8),
+    child: ListTile(
+
+    title: Text(userName),
+    subtitle: Text('Major: $userMajor\nID: $userID'),
+    ),
+    ),
+
+    SwitchListTile(
+    title: Text('Notifications'),
+    value: isNotificationsOn,
+    onChanged: updateNotificationPreference,
+    secondary: Icon(
+    isNotificationsOn ? Icons.notifications_active : Icons.notifications_off,
+    ),
+    ),
+    SwitchListTile(
+    title: Text('change Theme'),
+      value: _isThemeOn,
+      onChanged: updateThemePreference,
+      secondary: Icon(
+        _isThemeOn ? Icons.light_mode : Icons.dark_mode,
       ),
+    ),
+              // Any additional settings options go here
+            ],
+        ),
     );
   }
 }
+
+
