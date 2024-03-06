@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -27,6 +28,7 @@ class _AdminPageState extends State<AdminPage> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref('clubs');
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> _clubs = [];
   bool _isLoading = false;
 
@@ -108,6 +110,12 @@ class _AdminPageState extends State<AdminPage> {
     setState(() => _isLoading = true);
 
     try {
+      // First, attempt to create the user in FirebaseAuth
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
       String imageUrl = '';
       if (_selectedImage != null) {
         imageUrl = await _uploadImage(_selectedImage!);
@@ -119,11 +127,15 @@ class _AdminPageState extends State<AdminPage> {
         'description': _descriptionController.text,
         'imageUrl': imageUrl,
         'adminEmail': _emailController.text,
-        'password':_passwordController.text,
+        // Password should NOT be stored in the database for security reasons
       };
 
+      // Then, save the club information to Realtime Database
       await _dbRef.push().set(clubInfo);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Club added successfully!')));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AdminPage()));
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to create admin user: ${e.message}')));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error adding club: $e')));
     } finally {
@@ -131,7 +143,6 @@ class _AdminPageState extends State<AdminPage> {
       setState(() => _isLoading = false);
     }
   }
-
   void _resetForm() {
     _nameController.clear();
     _adminController.clear();
@@ -140,8 +151,23 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   void _deleteClub(String key) async {
-    await _dbRef.child(key).remove();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Club deleted successfully')));
+    try {
+      // First, delete the club from the database
+      await _dbRef.child(key).remove();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Club deleted successfully')));
+
+      // Then, delete the current user's account from Firebase Authentication
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      await currentUser?.delete();
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User account deleted successfully')));
+
+      // Redirect to login page or any other page as needed after account deletion
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AdminPage()));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error deleting club/user: $e')));
+    }
+
   }
 
   @override
@@ -430,10 +456,12 @@ class _EditClubPageState extends State<EditClubPage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
     try {
       String imageUrl = _imageUrl ?? '';
       if (_newImage != null) {
-        imageUrl = await _uploadImage(_newImage!); // Ensure _uploadImage method is defined
+        imageUrl = await _uploadImage(_newImage!);
       }
 
       final clubInfo = {
@@ -441,14 +469,25 @@ class _EditClubPageState extends State<EditClubPage> {
         'admin': _adminController.text.trim(),
         'description': _descriptionController.text.trim(),
         'adminEmail':_emailController.text.trim(),
-        'password':_passwordController.text.trim(),
+        // Do not store passwords in your database. This line is for illustrative purposes.
+        // 'password':_passwordController.text.trim(),
         'imageUrl': imageUrl,
       };
 
-      // Update club information in Firebase
-      await FirebaseDatabase.instance.ref('clubs').child(widget.clubKey).update(clubInfo);
+      // Update club information in Firebase Realtime Database
+      await FirebaseDatabase.instance.ref('clubs/${widget.clubKey}').update(clubInfo);
 
-      Navigator.pop(context); // Optionally pop the context to return to the previous screen
+      // Update the admin's email in Firebase Authentication
+      if (currentUser != null && currentUser.email != _emailController.text.trim()) {
+        await currentUser.updateEmail(_emailController.text.trim()).then((_) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email updated successfully in Firebase Auth.')));
+        }).catchError((error) {
+          // Handle errors, possibly by re-authenticating the user
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update email in Firebase Auth: $error')));
+        });
+      }
+
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Club updated successfully!')));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error updating club: $e')));

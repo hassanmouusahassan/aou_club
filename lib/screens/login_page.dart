@@ -1,3 +1,5 @@
+import 'package:aou_club/screens/admin_club_admin_page.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,15 +29,9 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
-      String userEmail = userCredential.user?.email ?? "";
       await saveLoginStatus(true);
-
-      // Check if user email is "hassan@gmail.com"
-      if (userEmail == "hassan@gmail.com") {
-        _navigateToPage(AdminPage());
-      } else {
-        _navigateToPage(ClubsPage());
-      }
+      // Check if the authenticated user is an admin of a club.
+      await _checkClubAdminStatus(userCredential.user);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -53,16 +49,69 @@ class _LoginPageState extends State<LoginPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     if (isLoggedIn) {
-      // Assuming the user's email is stored and you have access to it here.
-      // You might need to adjust based on your actual app design.
       String userEmail = prefs.getString('userEmail') ?? "";
-      if (userEmail == "hassan@gmail.com") {
-        _navigateToPage(AdminPage());
+      await _checkSavedUserAdminStatus(userEmail);
+    }
+  }
+
+  Future<void> _checkClubAdminStatus(User? user) async {
+    if (user == null) return;
+
+    // Specific email check for Hassan
+    if (user.email == "hassan@gmail.com" && passwordController.text == "hassan1234") {
+      _navigateToPage(AdminPage()); // Navigate to a general admin page if it's Hassan
+      return;
+    }
+
+    // Otherwise, check against the clubs' adminEmails
+    DatabaseReference clubsRef = FirebaseDatabase.instance.ref('clubs');
+    bool isAdmin = false;
+    String adminClubKey = '';
+
+    DataSnapshot snapshot = await clubsRef.get();
+    if (snapshot.exists) {
+      Map clubs = snapshot.value as Map;
+      clubs.forEach((key, value) {
+        if (value['adminEmail'] == user.email) {
+          isAdmin = true;
+          adminClubKey = key;
+        }
+      });
+
+      if (isAdmin) {
+        _navigateToPage(AdminClubInfoPage(clubKey: adminClubKey)); // Navigate to the specific club admin page
+      } else {
+        _navigateToPage(ClubsPage()); // Navigate to the regular clubs page
+      }
+    }
+  }
+
+  Future<void> _checkSavedUserAdminStatus(String userEmail) async {
+    DatabaseReference clubsRef = FirebaseDatabase.instance.ref('clubs');
+    bool isAdmin = false;
+    String adminClubKey = '';
+
+    DataSnapshot snapshot = await clubsRef.get();
+    if (snapshot.exists) {
+      Map clubs = snapshot.value as Map;
+      clubs.forEach((key, value) {
+        if (value['adminEmail'] == userEmail) {
+          isAdmin = true;
+          adminClubKey = key;
+        }
+      });
+
+      if (isAdmin) {
+        _navigateToPage(AdminClubInfoPage(clubKey: adminClubKey));
       } else {
         _navigateToPage(ClubsPage());
       }
     }
   }
+
+
+
+// Include the rest of the necessary code here, such as saveLoginStatus.
 
   Future<void> saveLoginStatus(bool isLoggedIn) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
