@@ -46,18 +46,16 @@ class _AdminClubInfoPageState extends State<AdminClubInfoPage> {
     await prefs.clear();
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
-  @override
 
+  @override
   Widget build(BuildContext context) {
     final DatabaseReference clubRef = FirebaseDatabase.instance.ref('clubs/${widget.clubKey}');
     final DatabaseReference eventsRef = clubRef.child('events');
-    final DatabaseReference galleryRef = clubRef.child('gallery');
 
     return Scaffold(
       appBar: AppBar(
         title: StreamBuilder(
           stream: clubRef.child('name').onValue,
-
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Text((snapshot.data! as DatabaseEvent).snapshot.value.toString());
@@ -67,26 +65,13 @@ class _AdminClubInfoPageState extends State<AdminClubInfoPage> {
         ),
         automaticallyImplyLeading: false,
         actions: [
-          Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  // Navigate to a page where you can edit club details
-                  // This could be a form page where you pass the current club details
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.exit_to_app, color: Colors.red),
-                onPressed: confirmLogout,
-              ),
-            ],
+          IconButton(
+            icon: const Icon(Icons.exit_to_app, color: Colors.red),
+            onPressed: confirmLogout,
           ),
         ],
       ),
-      body:
-
-      SingleChildScrollView(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,6 +92,15 @@ class _AdminClubInfoPageState extends State<AdminClubInfoPage> {
             SizedBox(height: 20),
             buildEditableField(
               context,
+              fieldName: "Club Description",
+              stream: clubRef.child('description').onValue,
+              onEdit: () {
+                // Provide functionality to edit the club description
+              },
+            ),
+            SizedBox(height: 20),
+            buildEditableField(
+              context,
               fieldName: "Admin",
               stream: clubRef.child('admin').onValue,
               onEdit: () {
@@ -114,10 +108,10 @@ class _AdminClubInfoPageState extends State<AdminClubInfoPage> {
               },
             ),
             SizedBox(height: 20),
-            Text("Upcoming Events", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            // Similar to the ClubInfoPage but include editing functionality
-            SizedBox(height: 20),
-            Text("Gallery", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              "Upcoming Events",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             // Similar to the ClubInfoPage but include editing functionality
           ],
         ),
@@ -131,13 +125,26 @@ class _AdminClubInfoPageState extends State<AdminClubInfoPage> {
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           String fieldValue = (snapshot.data! as DatabaseEvent).snapshot.value.toString();
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("$fieldName: $fieldValue", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: onEdit,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "$fieldName:",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: onEdit,
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              Text(
+                fieldValue,
+                style: TextStyle(fontSize: 16),
               ),
             ],
           );

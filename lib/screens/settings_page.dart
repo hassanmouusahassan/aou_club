@@ -21,7 +21,7 @@ class _SettingsPageState extends State<SettingsPage> {
   String userName = 'hassan moussa';
   String userMajor = 'computer science';
   String userID = '220464';
-  String userProfileImg = 'https://i.ibb.co/9nwYPrC/sarah-jpgayoub-20240304-0001.jpg';
+ String userProfileImg = 'assets/hassan.jpeg';
 
   @override
   void initState() {
@@ -94,7 +94,7 @@ class _SettingsPageState extends State<SettingsPage> {
         body: ListView(
             children: [
               userProfileImg.isNotEmpty
-                  ? CircleAvatar(backgroundImage: NetworkImage(userProfileImg), radius: 80,)
+                  ? CircleAvatar(backgroundImage: AssetImage(userProfileImg), radius: 80,)
                   : CircleAvatar(child: Icon(Icons.person)),
 
     Card(
