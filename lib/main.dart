@@ -8,7 +8,7 @@ import 'package:aou_club/widgets/router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'package:firebase_app_check/firebase_app_check.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -21,7 +21,7 @@ void main() async {
       appId: "1:674025303011:android:b82a9bdf765cb672244ed6",
     ),
   );
-
+  await FirebaseAppCheck.instance.activate();
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),

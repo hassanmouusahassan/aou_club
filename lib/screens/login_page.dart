@@ -69,10 +69,10 @@ class _LoginPageState extends State<LoginPage> {
     String adminClubKey = '';
 
     DataSnapshot snapshot = await clubsRef.get();
-    if (snapshot.exists) {
+    if (snapshot.exists && snapshot.value != null) {
       Map clubs = snapshot.value as Map;
       clubs.forEach((key, value) {
-        if (value['adminEmail'] == user.email) {
+        if (value != null && value['adminEmail'] == user.email) {
           isAdmin = true;
           adminClubKey = key;
         }
@@ -83,7 +83,16 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         _navigateToPage(ClubsPage()); // Navigate to the regular clubs page
       }
+    } else {
+      _navigateToPage(ClubsPage()); // Default navigation if no clubs are found
     }
+  }
+
+  void _navigateToPage(Widget page) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
   }
 
   Future<void> _checkSavedUserAdminStatus(String userEmail) async {
@@ -120,12 +129,7 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString('userEmail', emailController.text.trim());
   }
 
-  void _navigateToPage(Widget page) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
